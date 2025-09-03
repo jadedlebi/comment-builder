@@ -1,12 +1,8 @@
-name: Deploy to Google Cloud Run
+name: Deploy to Google Cloud Run (Simple)
 
 on:
-  # Temporarily disabled - using deploy-simple.yml instead
-  # push:
-  #   branches: [ main ]
-  # pull_request:
-  #   branches: [ main ]
-  workflow_dispatch:
+  push:
+    branches: [ main ]
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -14,49 +10,7 @@ env:
   REGION: us-central1
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: |
-          client/package-lock.json
-          server/package-lock.json
-
-    - name: Install client dependencies
-      run: |
-        cd client
-        npm ci
-
-    - name: Install server dependencies
-      run: |
-        cd server
-        npm ci
-
-    - name: Run client tests
-      run: |
-        cd client
-        npm test -- --coverage --watchAll=false
-
-    - name: Run server tests
-      run: |
-        cd server
-        npm test
-
-    - name: Build client
-      run: |
-        cd client
-        npm run build
-
   deploy:
-    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
