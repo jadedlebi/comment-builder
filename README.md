@@ -93,7 +93,7 @@ RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
    ```bash
    gcloud services enable cloudbuild.googleapis.com
    gcloud services enable run.googleapis.com
-   gcloud services enable containerregistry.googleapis.com
+   gcloud services enable artifactregistry.googleapis.com
    ```
 3. Set up authentication:
    ```bash

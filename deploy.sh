@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 # Configuration
 PROJECT_ID="hdma1-242116"
 SERVICE_NAME="comment-builder"
-REGION="us-central1"
+REGION="us-east1"
 IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
 
 echo -e "${BLUE}🚀 Comment Builder - Manual Deployment${NC}"

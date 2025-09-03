@@ -1,39 +1,27 @@
 #!/bin/bash
 
-# Quick deployment script for Cloud Run
+# Quick deploy using gcloud run deploy with source
+# This bypasses the container registry issues
+
 set -e
 
-echo "🚀 Quick Cloud Run Deployment"
-echo "=============================="
+echo "🚀 Quick Deploy to Cloud Run"
+echo "============================="
 
-# Check if we have the required environment variables
-if [ -z "$GCP_PROJECT_ID" ]; then
-    echo "❌ Please set GCP_PROJECT_ID environment variable"
-    echo "Example: export GCP_PROJECT_ID=your-project-id"
-    exit 1
-fi
-
-echo "📋 Project ID: $GCP_PROJECT_ID"
-
-# Build and deploy
-echo "🏗️ Building Docker image..."
-docker build -t gcr.io/$GCP_PROJECT_ID/cfpb-comment-builder:latest .
-
-echo "📤 Pushing to Google Container Registry..."
-docker push gcr.io/$GCP_PROJECT_ID/cfpb-comment-builder:latest
-
-echo "🚀 Deploying to Cloud Run..."
-gcloud run deploy cfpb-comment-builder \
-    --image gcr.io/$GCP_PROJECT_ID/cfpb-comment-builder:latest \
+# Deploy directly from source
+gcloud run deploy comment-builder \
+    --source . \
     --platform managed \
-    --region us-central1 \
+    --region us-east1 \
     --allow-unauthenticated \
     --memory 1Gi \
     --cpu 1 \
     --max-instances 10 \
     --min-instances 0 \
-    --set-env-vars NODE_ENV=production,PORT=8080
+    --concurrency 80 \
+    --timeout 300 \
+    --set-env-vars NODE_ENV=production
 
 echo "✅ Deployment complete!"
-echo "🌐 Your service should now be visible in Cloud Run console"
-echo "🔗 Check: https://console.cloud.google.com/run"
+echo "🌐 Service URL:"
+gcloud run services describe comment-builder --region=us-east1 --format="value(status.url)"

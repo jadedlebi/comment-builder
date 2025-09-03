@@ -48,6 +48,13 @@ function validateEnv() {
       console.error(`   - ${varName}`);
     });
     console.error('\nPlease check your .env file and ensure all required variables are set.');
+    
+    // In production, don't exit the process - just warn
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('⚠️  Running in production mode without required env vars - some features may not work');
+      return;
+    }
+    
     process.exit(1);
   }
 
