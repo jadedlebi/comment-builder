@@ -1,63 +1,79 @@
 #!/bin/bash
 
-# Government Comment App Setup Script
+# CFPB Comment Builder - Setup Script
+# Similar to branch_ai setup approach
 
-echo "🔧 Setting up Government Comment Submission Tool..."
+set -e
 
-# Create environment files
-echo "📝 Creating environment files..."
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Server .env
-cat > .env << EOF
-# Server Configuration
-PORT=3001
-NODE_ENV=development
+echo -e "${BLUE}🚀 CFPB Comment Builder - Setup${NC}"
+echo "=================================="
 
-# Claude API Configuration
-CLAUDE_API_KEY=your_claude_api_key_here
-CLAUDE_MODEL=claude-sonnet-4-20250514
+# Check if Node.js is installed
+if ! command -v node &> /dev/null; then
+    echo -e "${RED}❌ Node.js is not installed${NC}"
+    echo -e "${YELLOW}   Install it from: https://nodejs.org/${NC}"
+    exit 1
+fi
 
-# BigQuery Configuration (copy your exact values from your other project)
-BQ_TYPE=service_account
-BQ_PROJECT_ID=your_project_id
-BQ_PRIVATE_KEY_ID=your_private_key_id
-BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour_private_key_here\n-----END PRIVATE KEY-----\n"
-BQ_CLIENT_EMAIL=your_service_account_email
-BQ_CLIENT_ID=your_client_id
-BQ_AUTH_URI=https://accounts.google.com/o/oauth2/auth
-BQ_TOKEN_URI=https://oauth2.googleapis.com/token
-BQ_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
-BQ_CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/your_service_account_email
-BIGQUERY_DATASET=comment_submissions
+# Check if npm is installed
+if ! command -v npm &> /dev/null; then
+    echo -e "${RED}❌ npm is not installed${NC}"
+    exit 1
+fi
 
-# reCAPTCHA Configuration
-RECAPTCHA_SITE_KEY=your_recaptcha_site_key
-RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
+echo -e "${GREEN}✅ Node.js and npm are installed${NC}"
 
-# CORS Configuration
-CLIENT_URL=http://localhost:3000
+# Install client dependencies
+echo -e "${BLUE}📦 Installing client dependencies...${NC}"
+cd client
+npm install
+cd ..
 
-# Rate Limiting
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=10
-EOF
+# Install server dependencies
+echo -e "${BLUE}📦 Installing server dependencies...${NC}"
+cd server
+npm install
+cd ..
 
-# Client .env
-cat > client/.env << EOF
-# API Configuration
-REACT_APP_API_URL=http://localhost:3001/api
+echo -e "${GREEN}✅ Dependencies installed successfully${NC}"
 
-# reCAPTCHA Configuration
-REACT_APP_RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
-EOF
+# Check if gcloud is installed
+if ! command -v gcloud &> /dev/null; then
+    echo -e "${YELLOW}⚠️  gcloud CLI is not installed${NC}"
+    echo -e "${YELLOW}   Install it from: https://cloud.google.com/sdk/docs/install${NC}"
+    echo -e "${YELLOW}   You'll need it for deployment${NC}"
+else
+    echo -e "${GREEN}✅ gcloud CLI is installed${NC}"
+fi
 
-echo "✅ Environment files created!"
+# Check if Docker is installed
+if ! command -v docker &> /dev/null; then
+    echo -e "${YELLOW}⚠️  Docker is not installed${NC}"
+    echo -e "${YELLOW}   Install it from: https://docs.docker.com/get-docker/${NC}"
+    echo -e "${YELLOW}   You'll need it for deployment${NC}"
+else
+    echo -e "${GREEN}✅ Docker is installed${NC}"
+fi
+
 echo ""
-echo "📋 Next steps:"
-echo "1. Edit .env and client/.env with your actual credentials"
-echo "2. Set up your Google Cloud BigQuery project"
-echo "3. Get your Claude API key from Anthropic"
-echo "4. Set up reCAPTCHA keys from Google"
-echo "5. Run: ./start.sh"
+echo -e "${GREEN}🎉 Setup completed successfully!${NC}"
 echo ""
-echo "🎉 Setup complete! Check the README.md for detailed instructions."
+echo -e "${BLUE}📋 Next Steps:${NC}"
+echo -e "${YELLOW}   1. Set up your environment variables${NC}"
+echo -e "${YELLOW}   2. Run: make dev (to start development servers)${NC}"
+echo -e "${YELLOW}   3. Run: make deploy (to deploy to Cloud Run)${NC}"
+echo ""
+echo -e "${BLUE}🔧 Available Commands:${NC}"
+echo -e "${YELLOW}   make help     - Show all available commands${NC}"
+echo -e "${YELLOW}   make dev      - Start development servers${NC}"
+echo -e "${YELLOW}   make build    - Build the client${NC}"
+echo -e "${YELLOW}   make deploy   - Deploy to Cloud Run${NC}"
+echo -e "${YELLOW}   make logs     - View Cloud Run logs${NC}"
+echo -e "${YELLOW}   make status   - Check deployment status${NC}"

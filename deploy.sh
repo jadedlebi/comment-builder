@@ -1,15 +1,9 @@
 #!/bin/bash
 
-# CFPB Comment Builder - Google Cloud Run Deployment Script
-# This script deploys the application to Google Cloud Run
+# CFPB Comment Builder - Manual Deployment Script
+# Similar to branch_ai deployment approach
 
-set -e
-
-# Configuration
-PROJECT_ID=${GCP_PROJECT_ID:-"your-project-id"}
-SERVICE_NAME="cfpb-comment-builder"
-REGION="us-central1"
-IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
+set -e  # Exit on any error
 
 # Colors for output
 RED='\033[0;31m'
@@ -18,27 +12,32 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 CFPB Comment Builder - Google Cloud Run Deployment${NC}"
-echo "=================================================="
+# Configuration
+PROJECT_ID="cfpb-comment-builder"
+SERVICE_NAME="cfpb-comment-builder"
+REGION="us-central1"
+IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
 
-# Check if gcloud is installed
+echo -e "${BLUE}🚀 CFPB Comment Builder - Manual Deployment${NC}"
+echo "=============================================="
+
+# Check if we're in the right directory
+if [ ! -f "Dockerfile" ]; then
+    echo -e "${RED}❌ Error: Dockerfile not found. Please run this script from the project root.${NC}"
+    exit 1
+fi
+
+# Check if gcloud is available
 if ! command -v gcloud &> /dev/null; then
-    echo -e "${RED}❌ gcloud CLI is not installed. Please install it first.${NC}"
-    echo "Visit: https://cloud.google.com/sdk/docs/install"
+    echo -e "${RED}❌ Error: gcloud CLI is not installed${NC}"
+    echo -e "${YELLOW}   Install it from: https://cloud.google.com/sdk/docs/install${NC}"
     exit 1
 fi
 
-# Check if docker is installed
+# Check if docker is available
 if ! command -v docker &> /dev/null; then
-    echo -e "${RED}❌ Docker is not installed. Please install it first.${NC}"
-    echo "Visit: https://docs.docker.com/get-docker/"
-    exit 1
-fi
-
-# Check if PROJECT_ID is set
-if [ "$PROJECT_ID" = "your-project-id" ]; then
-    echo -e "${RED}❌ Please set GCP_PROJECT_ID environment variable${NC}"
-    echo "Example: export GCP_PROJECT_ID=your-actual-project-id"
+    echo -e "${RED}❌ Error: Docker is not installed${NC}"
+    echo -e "${YELLOW}   Install it from: https://docs.docker.com/get-docker/${NC}"
     exit 1
 fi
 
@@ -49,13 +48,19 @@ echo "  Region: $REGION"
 echo "  Image: $IMAGE_NAME"
 echo ""
 
-# Authenticate with Google Cloud
-echo -e "${BLUE}🔐 Authenticating with Google Cloud...${NC}"
-gcloud auth login
+# Check if we're authenticated
+echo -e "${BLUE}🔐 Checking authentication...${NC}"
+if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q .; then
+    echo -e "${YELLOW}⚠️  Not authenticated. Please run: gcloud auth login${NC}"
+    exit 1
+fi
+
+# Set the project
+echo -e "${BLUE}🔧 Setting project...${NC}"
 gcloud config set project $PROJECT_ID
 
 # Enable required APIs
-echo -e "${BLUE}🔧 Enabling required Google Cloud APIs...${NC}"
+echo -e "${BLUE}🔧 Enabling required APIs...${NC}"
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable run.googleapis.com
 gcloud services enable containerregistry.googleapis.com
@@ -95,14 +100,9 @@ echo -e "${GREEN}✅ Deployment completed successfully!${NC}"
 echo -e "${GREEN}🌐 Service URL: $SERVICE_URL${NC}"
 echo ""
 echo -e "${YELLOW}📝 Next Steps:${NC}"
-echo "1. Set up environment variables in Google Cloud Console"
-echo "2. Configure secrets for BigQuery, Claude API, and reCAPTCHA"
-echo "3. Run the admin table creation script"
-echo "4. Test the deployment"
+echo "1. Test your deployment: curl $SERVICE_URL/health"
+echo "2. Set up environment variables if needed"
+echo "3. Run admin table creation script"
 echo ""
-echo -e "${BLUE}🔧 To set up environment variables:${NC}"
-echo "gcloud run services update $SERVICE_NAME --region $REGION --set-env-vars KEY=VALUE"
-echo ""
-echo -e "${BLUE}🔐 To set up secrets:${NC}"
-echo "gcloud secrets create secret-name --data-file=secret-file.json"
-echo "gcloud run services update $SERVICE_NAME --region $REGION --set-secrets KEY=secret-name:latest"
+echo -e "${BLUE}🔗 Cloud Run Console: https://console.cloud.google.com/run${NC}"
+echo -e "${BLUE}🔗 Service URL: $SERVICE_URL${NC}"
