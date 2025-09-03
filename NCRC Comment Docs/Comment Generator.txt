@@ -1,0 +1,444 @@
+import React, { useState } from 'react';
+import { Send, FileText, Users, AlertCircle, CheckCircle } from 'lucide-react';
+
+const CFPBCommentTool = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    city: '',
+    state: '',
+    personalStory: '',
+    whyItMatters: '',
+    experiences: '',
+    concerns: ''
+  });
+  
+  const [generatedLetter, setGeneratedLetter] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [step, setStep] = useState(1);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const generateLetter = async () => {
+    setIsGenerating(true);
+    
+    const prompt = `You are helping create a unique, personalized comment letter opposing the CFPB's proposed rule "Legal Standard Applicable to Supervisory Designation Proceedings" (Docket No. CFPB-2025-0018). 
+
+The user has provided:
+- Name: ${formData.name}
+- Location: ${formData.city}, ${formData.state}
+- Personal story: ${formData.personalStory}
+- Why consumer protection matters: ${formData.whyItMatters}
+- Financial service experiences: ${formData.experiences}
+- Concerns about the rule: ${formData.concerns}
+
+Background context (DO NOT quote or copy directly from any source):
+The proposed rule would change supervision standards from "reasonable cause to determine risks" to requiring "high likelihood of significant harm" before action. This could weaken oversight of financial companies and delay intervention until after consumers are harmed.
+
+Write a completely original, authentic comment letter that:
+- Sounds like it comes from this specific person, not a template
+- Uses ONLY their own words and experiences as the foundation
+- Explains the issue in their voice, using analogies or examples that fit their background
+- Makes 1-2 points about why the rule change is problematic based on their stated concerns
+- Connects to their community or personal situation
+- Shows genuine concern rather than policy jargon
+- Is 250-400 words
+- Avoids any phrases that sound like they came from advocacy materials
+- Uses conversational but respectful tone appropriate for government comment
+- NEVER suggests policy alternatives or solutions - only expresses opposition to the proposed rule
+- NEVER mentions facts, statistics, or claims not provided by the user
+- Focuses on the user's perspective and concerns rather than broader policy arguments
+
+The goal is a letter so personal and authentic that it clearly comes from a real person with genuine concerns, based solely on what they have shared with you.`;
+
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          messages: [
+            { role: "user", content: prompt }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const letter = data.content[0].text;
+      
+      setGeneratedLetter(letter);
+      setStep(3);
+    } catch (error) {
+      console.error("Error generating letter:", error);
+      alert("Sorry, there was an error generating your letter. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedLetter);
+    alert("Letter copied to clipboard!");
+  };
+
+  // NCRC Logo Component
+  const NCRCLogo = () => (
+    <div className="flex items-center">
+      <div className="w-8 h-8 mr-3 flex-shrink-0" style={{ color: '#2fade3' }}>
+        <svg viewBox="0 0 32 32" fill="currentColor">
+          <rect x="2" y="2" width="28" height="28" rx="2" fill="currentColor"/>
+          <path d="M8 12c0-2 2-4 4-4s4 2 4 4v8c0 2-2 4-4 4s-4-2-4-4v-8z" fill="white"/>
+          <path d="M16 12c0-2 2-4 4-4s4 2 4 4v8c0 2-2 4-4 4s-4-2-4-4v-8z" fill="white"/>
+          <circle cx="12" cy="8" r="2" fill="white"/>
+          <circle cx="20" cy="8" r="2" fill="white"/>
+        </svg>
+      </div>
+      <div>
+        <div className="text-lg font-bold text-gray-900">NCRC</div>
+        <div className="text-xs text-gray-600">National Community Reinvestment Coalition</div>
+      </div>
+    </div>
+  );
+
+  if (step === 1) {
+    return (
+      <div className="max-w-4xl mx-auto p-6" style={{ backgroundColor: '#f8f9fa' }}>
+        {/* Header with NCRC branding */}
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+          <NCRCLogo />
+        </div>
+
+        <div className="bg-white p-8 rounded-lg shadow-sm">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Stop the CFPB From Weakening Consumer Protections
+            </h1>
+            <p className="text-lg text-gray-600 mb-6">
+              Help us generate a personalized comment letter that combines your voice with our legal expertise
+            </p>
+            <div className="p-4 mb-6 rounded-lg" style={{ backgroundColor: '#fef2f2', borderColor: '#fecaca', border: '1px solid' }}>
+              <div className="flex items-center justify-center">
+                <AlertCircle style={{ color: '#dc2626' }} className="mr-2" size={20} />
+                <span className="font-semibold" style={{ color: '#991b1b' }}>Deadline: September 25, 2025</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 mb-8 rounded-lg" style={{ backgroundColor: '#eff6ff', borderColor: '#dbeafe', border: '1px solid' }}>
+            <h2 className="text-xl font-semibold mb-3" style={{ color: '#034ea0' }}>What's Happening?</h2>
+            <p className="mb-4" style={{ color: '#1e40af' }}>
+              The CFPB wants to change its rules to require "high likelihood of significant harm" before it can investigate financial companies, instead of the current "reasonable cause" standard.
+            </p>
+            <p style={{ color: '#1e40af' }}>
+              This could prevent the agency from stopping discrimination, predatory lending, and other harmful practices before consumers are seriously hurt.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setStep(2)}
+            className="w-full font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center text-white"
+            style={{ backgroundColor: '#2fade3' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#1e90c7'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#2fade3'}
+          >
+            <FileText className="mr-2" size={20} />
+            Start Creating Your Comment Letter
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 2) {
+    return (
+      <div className="max-w-4xl mx-auto p-6" style={{ backgroundColor: '#f8f9fa' }}>
+        {/* Header with NCRC branding */}
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+          <NCRCLogo />
+        </div>
+
+        <div className="bg-white p-8 rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">Tell Your Story</h1>
+          <p className="text-gray-600 mb-4">
+            Share your information and experiences. We'll combine this with our legal analysis to create a draft comment letter.
+          </p>
+          
+          <div className="p-4 mb-6 rounded-lg" style={{ backgroundColor: '#fefbf0', borderColor: '#fcd34d', border: '1px solid' }}>
+            <p className="text-sm" style={{ color: '#92400e' }}>
+              <strong>Important:</strong> This tool creates a draft to help organize your thoughts and speed up the process. 
+              You will need to review, edit, and personalize the generated letter before submitting it as your own comment 
+              to the Federal Register. The final letter should reflect your genuine views and experiences.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                  style={{ focusRingColor: '#2fade3' }}
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => handleInputChange('city', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                  placeholder="Your city"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                State
+              </label>
+              <input
+                type="text"
+                value={formData.state}
+                onChange={(e) => handleInputChange('state', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                placeholder="Your state"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Why does consumer protection matter to you?
+              </label>
+              <textarea
+                value={formData.whyItMatters}
+                onChange={(e) => handleInputChange('whyItMatters', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                rows="3"
+                placeholder="Share why strong consumer protections are important to you and your family..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Personal experiences with financial services (optional)
+              </label>
+              <textarea
+                value={formData.experiences}
+                onChange={(e) => handleInputChange('experiences', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                rows="4"
+                placeholder="Have you or someone you know experienced problems with banks, lenders, or other financial companies? Share your story..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Concerns about weakening the CFPB (optional)
+              </label>
+              <textarea
+                value={formData.concerns}
+                onChange={(e) => handleInputChange('concerns', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                rows="3"
+                placeholder="What worries you most about making it harder for the CFPB to investigate financial companies?"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Personal story or background (optional)
+              </label>
+              <textarea
+                value={formData.personalStory}
+                onChange={(e) => handleInputChange('personalStory', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                rows="3"
+                placeholder="Tell us about yourself - are you a parent, small business owner, student, retiree? This helps personalize your letter..."
+              />
+            </div>
+          </div>
+
+          <div className="flex space-x-4 mt-8">
+            <button
+              onClick={() => setStep(1)}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
+            >
+              Back
+            </button>
+            <button
+              onClick={generateLetter}
+              disabled={!formData.name || isGenerating}
+              className="flex-1 font-semibold py-2 px-6 rounded-md transition duration-200 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: !formData.name || isGenerating ? '#9ca3af' : '#2fade3' }}
+              onMouseEnter={(e) => {
+                if (!(!formData.name || isGenerating)) {
+                  e.target.style.backgroundColor = '#1e90c7';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!(!formData.name || isGenerating)) {
+                  e.target.style.backgroundColor = '#2fade3';
+                }
+              }}
+            >
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Generating Your Letter...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2" size={16} />
+                  Generate My Comment Letter
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 3) {
+    return (
+      <div className="max-w-4xl mx-auto p-6" style={{ backgroundColor: '#f8f9fa' }}>
+        {/* Header with NCRC branding */}
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+          <NCRCLogo />
+        </div>
+
+        <div className="bg-white p-8 rounded-lg shadow-sm">
+          <div className="flex items-center mb-6" style={{ color: '#16a34a' }}>
+            <CheckCircle className="mr-2" size={24} />
+            <h1 className="text-2xl font-bold">Your Draft Comment Letter is Ready!</h1>
+          </div>
+
+          <div className="p-4 mb-6 rounded-lg" style={{ backgroundColor: '#fef2f2', borderColor: '#fecaca', border: '1px solid' }}>
+            <h3 className="font-semibold mb-2" style={{ color: '#991b1b' }}>⚠️ Important Legal Notice:</h3>
+            <p className="text-sm" style={{ color: '#991b1b' }}>
+              This is a DRAFT letter created to help organize your thoughts and speed up the comment process. 
+              You must review, edit, and personalize this content before submitting it as your official comment. 
+              Any final submission to the Federal Register must reflect your genuine personal views and experiences. 
+              NCRC provides this tool solely to assist in organizing public participation in the regulatory process.
+            </p>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Generated Draft Letter:</h2>
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="px-4 py-2 text-sm font-medium rounded-md transition duration-200"
+                style={{ 
+                  backgroundColor: isEditing ? '#16a34a' : '#2fade3',
+                  color: 'white'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = isEditing ? '#15803d' : '#1e90c7';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = isEditing ? '#16a34a' : '#2fade3';
+                }}
+              >
+                {isEditing ? 'Done Editing' : 'Edit Letter'}
+              </button>
+            </div>
+            <div className="bg-white border rounded">
+              {isEditing ? (
+                <textarea
+                  value={generatedLetter}
+                  onChange={(e) => setGeneratedLetter(e.target.value)}
+                  className="w-full p-4 text-sm font-sans resize-none focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                  style={{ 
+                    minHeight: '400px',
+                    fontFamily: 'system-ui, -apple-system, sans-serif',
+                    focusRingColor: '#2fade3'
+                  }}
+                  placeholder="Edit your letter here..."
+                />
+              ) : (
+                <div className="p-4 max-h-96 overflow-y-auto">
+                  <pre className="whitespace-pre-wrap text-sm text-gray-800 font-sans">
+                    {generatedLetter}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="p-4 mb-6 rounded-lg" style={{ backgroundColor: '#fefbf0', borderColor: '#fcd34d', border: '1px solid' }}>
+            <h3 className="font-semibold mb-2" style={{ color: '#92400e' }}>Required Next Steps:</h3>
+            <ol className="text-sm space-y-1" style={{ color: '#92400e' }}>
+              <li>1. <strong>Carefully review</strong> the draft letter above</li>
+              <li>2. <strong>Edit and personalize</strong> the content to ensure it accurately reflects your views</li>
+              <li>3. <strong>Add or modify</strong> any details to make it authentically yours</li>
+              <li>4. Copy your edited letter to your clipboard</li>
+              <li>5. Go to the official Federal Register comment portal and paste your personalized letter</li>
+            </ol>
+          </div>
+
+          <div className="flex space-x-4">
+            <button
+              onClick={copyToClipboard}
+              className="font-semibold py-2 px-6 rounded-md transition duration-200 text-white"
+              style={{ backgroundColor: '#16a34a' }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#15803d'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#16a34a'}
+            >
+              Copy Draft to Clipboard
+            </button>
+            <a
+              href="https://www.regulations.gov/docket/CFPB-2025-0018"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold py-2 px-6 rounded-md transition duration-200 text-white"
+              style={{ backgroundColor: '#2fade3' }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#1e90c7'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#2fade3'}
+            >
+              Go to Federal Register Portal
+            </a>
+            <button
+              onClick={() => {
+                setStep(2);
+                setGeneratedLetter('');
+              }}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
+            >
+              Create Another Draft
+            </button>
+          </div>
+
+          <div className="mt-8 p-4 rounded-lg" style={{ backgroundColor: '#eff6ff', borderColor: '#dbeafe', border: '1px solid' }}>
+            <p className="text-sm" style={{ color: '#1e40af' }}>
+              <strong>Remember:</strong> The comment deadline is September 25, 2025. After editing your draft to reflect your personal views, 
+              submit your personalized comment to help show the CFPB that real people oppose weakening consumer protections.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+};
+
+export default CFPBCommentTool;
