@@ -13,12 +13,12 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-PROJECT_ID="cfpb-comment-builder"
-SERVICE_NAME="cfpb-comment-builder"
+PROJECT_ID="hdma1-242116"
+SERVICE_NAME="comment-builder"
 REGION="us-central1"
 IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
 
-echo -e "${BLUE}🚀 CFPB Comment Builder - Manual Deployment${NC}"
+echo -e "${BLUE}🚀 Comment Builder - Manual Deployment${NC}"
 echo "=============================================="
 
 # Check if we're in the right directory

@@ -1,6 +1,6 @@
-# CFPB Comment Builder
+# Comment Builder
 
-A full-stack application for generating and managing CFPB comments with dynamic admin management.
+A full-stack application for generating and managing regulatory comments with dynamic admin management. Supports multiple agencies including CFPB, SEC, and other regulatory bodies.
 
 ## 🚀 Quick Start
 
@@ -88,7 +88,7 @@ RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
 ## 🚀 Deployment
 
 ### Google Cloud Setup
-1. Create a Google Cloud project: `cfpb-comment-builder`
+1. Create a Google Cloud project: `comment-builder`
 2. Enable required APIs:
    ```bash
    gcloud services enable cloudbuild.googleapis.com
@@ -98,7 +98,7 @@ RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
 3. Set up authentication:
    ```bash
    gcloud auth login
-   gcloud config set project cfpb-comment-builder
+   gcloud config set project comment-builder
    ```
 
 ### Deploy
@@ -128,7 +128,7 @@ curl -X POST https://your-service-url/api/admin/setup
 ## 📊 Project Structure
 
 ```
-cfpb_comment_app/
+comment_builder/
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── components/     # React components

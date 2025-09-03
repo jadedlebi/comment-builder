@@ -32,18 +32,18 @@ deploy-quick: ## Quick deploy without building
 	./deploy.sh
 
 logs: ## View Cloud Run logs
-	gcloud logs read "resource.type=cloud_run_revision AND resource.labels.service_name=cfpb-comment-builder" --limit=50
+	gcloud logs read "resource.type=cloud_run_revision AND resource.labels.service_name=comment-builder" --limit=50
 
 status: ## Check deployment status
-	gcloud run services describe cfpb-comment-builder --region=us-central1 --format="value(status.url)"
+	gcloud run services describe comment-builder --region=us-central1 --format="value(status.url)"
 
 url: ## Get service URL
 	@echo "Service URL:"
-	@gcloud run services describe cfpb-comment-builder --region=us-central1 --format="value(status.url)"
+	@gcloud run services describe comment-builder --region=us-central1 --format="value(status.url)"
 
 health: ## Check service health
 	@echo "Checking service health..."
-	@curl -s $$(gcloud run services describe cfpb-comment-builder --region=us-central1 --format="value(status.url)")/health || echo "Service not responding"
+	@curl -s $$(gcloud run services describe comment-builder --region=us-central1 --format="value(status.url)")/health || echo "Service not responding"
 
 dev: ## Start development servers
 	@echo "Starting development servers..."
