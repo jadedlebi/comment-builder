@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require('dotenv').config({ path: '../.env' });
 
 const commentRoutes = require('./routes/comments');
@@ -58,6 +59,9 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Serve static files from the React app build
+app.use(express.static('public'));
+
 // API routes
 app.use('/api/comments', commentRoutes);
 app.use('/api/rulemakings', rulemakingRoutes);
@@ -65,9 +69,9 @@ app.use('/api/submissions', submissionRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+// Catch-all handler: send back React's index.html file for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Error handling middleware
