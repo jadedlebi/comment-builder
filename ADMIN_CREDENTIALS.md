@@ -69,7 +69,7 @@ The setup script creates two initial admin accounts:
 
 ### Via API (recommended)
 ```bash
-curl -X POST http://localhost:3001/api/admin/admins \
+curl -X POST $API_URL/admin/admins \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -109,7 +109,7 @@ VALUES (
 
 ### Change Admin Password
 ```bash
-curl -X PUT http://localhost:3001/api/admin/admins/ADMIN_ID/password \
+curl -X PUT $API_URL/admin/admins/ADMIN_ID/password \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"newPassword": "NewSecurePassword123!"}'
@@ -117,7 +117,7 @@ curl -X PUT http://localhost:3001/api/admin/admins/ADMIN_ID/password \
 
 ### Deactivate Admin
 ```bash
-curl -X PUT http://localhost:3001/api/admin/admins/ADMIN_ID \
+curl -X PUT $API_URL/admin/admins/ADMIN_ID \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"is_active": false}'

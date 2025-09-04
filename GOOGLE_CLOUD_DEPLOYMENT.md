@@ -166,7 +166,7 @@ SERVICE_URL=$(gcloud run services describe cfpb-comment-builder \
 gcloud run services proxy cfpb-comment-builder --port=8080
 
 # In another terminal, run the admin setup
-curl -X POST http://localhost:8080/api/admin/setup
+curl -X POST https://your-service-url.run.app/api/admin/setup
 ```
 
 ### Step 3: Test Deployment

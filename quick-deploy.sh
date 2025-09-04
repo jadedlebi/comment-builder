@@ -24,4 +24,12 @@ gcloud run deploy comment-builder \
 
 echo "✅ Deployment complete!"
 echo "🌐 Service URL:"
-gcloud run services describe comment-builder --region=us-east1 --format="value(status.url)"
+SERVICE_URL=$(gcloud run services describe comment-builder --region=us-east1 --format="value(status.url)")
+echo $SERVICE_URL
+
+echo "🔧 Updating API URL environment variable..."
+gcloud run services update comment-builder \
+    --region=us-east1 \
+    --set-env-vars NODE_ENV=production,REACT_APP_API_URL=$SERVICE_URL/api
+
+echo "✅ API URL updated to: $SERVICE_URL/api"
