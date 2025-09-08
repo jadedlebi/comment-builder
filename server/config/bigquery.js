@@ -31,6 +31,7 @@ const tableSchemas = {
     { name: 'context_documents', type: 'JSON', mode: 'NULLABLE' }, // Array of document URLs/descriptions
     { name: 'legal_analysis', type: 'STRING', mode: 'NULLABLE' },
     { name: 'opposition_points', type: 'JSON', mode: 'NULLABLE' }, // Array of key opposition points
+    { name: 'ncrc_comment_letter', type: 'STRING', mode: 'NULLABLE' }, // NCRC comment letter text for AI context
     { name: 'created_at', type: 'TIMESTAMP', mode: 'REQUIRED' },
     { name: 'updated_at', type: 'TIMESTAMP', mode: 'REQUIRED' }
   ],

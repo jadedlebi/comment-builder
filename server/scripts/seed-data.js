@@ -43,6 +43,13 @@ The current "reasonable cause" standard allows the CFPB to investigate potential
       'Undermines the CFPB\'s mission to prevent consumer harm',
       'Creates uncertainty about when the agency can take action'
     ]),
+    ncrc_comment_letter: `The National Community Reinvestment Coalition (NCRC) strongly opposes the Consumer Financial Protection Bureau's proposed rule to change the legal standard for supervisory designation proceedings from "reasonable cause to determine risks" to "high likelihood of significant harm."
+
+This proposed change would fundamentally undermine the CFPB's ability to protect consumers by creating an unreasonably high burden of proof before the agency can take action. The current "reasonable cause" standard allows the CFPB to investigate potential risks based on patterns, complaints, or other indicators of harm. The proposed "high likelihood of significant harm" standard would require the agency to demonstrate that harm is not just possible, but highly probable, before taking action.
+
+This change could delay or prevent the CFPB from addressing systemic issues in the financial services industry, potentially leaving consumers vulnerable to harmful practices. The agency's mission is to prevent consumer harm, not just respond to it after it has occurred. By raising the threshold for action, this rule would make it much harder for the CFPB to fulfill its core mission of protecting consumers.
+
+We urge the CFPB to maintain the current "reasonable cause" standard, which provides appropriate flexibility for the agency to address emerging risks and protect consumers from harm.`,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }

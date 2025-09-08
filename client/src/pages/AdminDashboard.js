@@ -21,14 +21,16 @@ const AdminDashboard = () => {
     agency: '',
     docket: '',
     comment_deadline: '',
-    description: ''
+    description: '',
+    ncrc_comment_letter: ''
   });
   const [editRulemaking, setEditRulemaking] = useState({
     title: '',
     agency: '',
     docket: '',
     comment_deadline: '',
-    description: ''
+    description: '',
+    ncrc_comment_letter: ''
   });
   
   const { user, logout } = useAuth();
@@ -134,7 +136,8 @@ const AdminDashboard = () => {
         agency: '',
         docket: '',
         comment_deadline: '',
-        description: ''
+        description: '',
+        ncrc_comment_letter: ''
       });
     } catch (err) {
       setError('Failed to create rulemaking');
@@ -154,7 +157,8 @@ const AdminDashboard = () => {
       agency: rulemaking.agency,
       docket: rulemaking.docket_id,
       comment_deadline: getDateString(rulemaking.comment_deadline),
-      description: rulemaking.description || ''
+      description: rulemaking.description || '',
+      ncrc_comment_letter: rulemaking.ncrc_comment_letter || ''
     });
     setShowEditModal(true);
   };
@@ -171,7 +175,8 @@ const AdminDashboard = () => {
         agency: '',
         docket: '',
         comment_deadline: '',
-        description: ''
+        description: '',
+        ncrc_comment_letter: ''
       });
     } catch (err) {
       setError('Failed to update rulemaking');
@@ -610,6 +615,19 @@ const AdminDashboard = () => {
                     placeholder="Enter rulemaking description"
                   />
                 </div>
+                <div className="form-group">
+                  <label className="form-label">NCRC Comment Letter</label>
+                  <textarea
+                    value={newRulemaking.ncrc_comment_letter}
+                    onChange={(e) => setNewRulemaking({...newRulemaking, ncrc_comment_letter: e.target.value})}
+                    rows={8}
+                    className="form-input"
+                    placeholder="Paste the NCRC comment letter here. This will be used as context for AI-generated personalized comments."
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    This letter will be used as context for generating personalized comments. Users will not see this directly.
+                  </p>
+                </div>
                 <div className="flex justify-end pt-6" style={{ gap: '16px' }}>
                   <button
                     type="button"
@@ -883,6 +901,19 @@ const AdminDashboard = () => {
                     className="form-input"
                     placeholder="Enter rulemaking description"
                   />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">NCRC Comment Letter</label>
+                  <textarea
+                    value={editRulemaking.ncrc_comment_letter}
+                    onChange={(e) => setEditRulemaking({...editRulemaking, ncrc_comment_letter: e.target.value})}
+                    rows={8}
+                    className="form-input"
+                    placeholder="Paste the NCRC comment letter here. This will be used as context for AI-generated personalized comments."
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    This letter will be used as context for generating personalized comments. Users will not see this directly.
+                  </p>
                 </div>
                 <div className="flex justify-end pt-6" style={{ gap: '16px' }}>
                   <button

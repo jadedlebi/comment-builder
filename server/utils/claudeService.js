@@ -44,7 +44,8 @@ class ClaudeService {
       description,
       docket_id,
       legal_analysis,
-      opposition_points
+      opposition_points,
+      ncrc_comment_letter
     } = rulemakingData;
 
     const {
@@ -75,6 +76,9 @@ ${legal_analysis || 'No legal analysis provided'}
 
 Key opposition points (DO NOT quote directly):
 ${opposition_points ? JSON.stringify(opposition_points) : 'No specific opposition points provided'}
+
+NCRC Comment Letter Context (DO NOT quote directly - use as inspiration for tone and key arguments):
+${ncrc_comment_letter || 'No NCRC comment letter provided'}
 
 Write a completely original, authentic comment letter that:
 - Sounds like it comes from this specific person, not a template

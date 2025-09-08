@@ -81,7 +81,8 @@ router.post('/', validateRulemaking, async (req, res, next) => {
       status = 'active',
       context_documents,
       legal_analysis,
-      opposition_points
+      opposition_points,
+      ncrc_comment_letter
     } = req.body;
 
     const rulemaking = {
@@ -96,6 +97,7 @@ router.post('/', validateRulemaking, async (req, res, next) => {
       context_documents: context_documents ? JSON.stringify(context_documents) : null,
       legal_analysis,
       opposition_points: opposition_points ? JSON.stringify(opposition_points) : null,
+      ncrc_comment_letter,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
