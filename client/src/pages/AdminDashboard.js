@@ -682,40 +682,42 @@ const AdminDashboard = () => {
 
                 {/* Form Footer - Buttons */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                  <div className="flex justify-end gap-3">
+                  <div className="space-y-3">
                     {addModalStep > 1 && (
                       <button
                         type="button"
                         onClick={prevStep}
-                        className="btn btn-outline"
+                        className="btn btn-outline w-full"
                       >
                         ← Previous
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="btn btn-outline"
-                    >
-                      Cancel
-                    </button>
-                    {addModalStep < 2 ? (
+                    <div className="flex gap-3">
                       <button
                         type="button"
-                        onClick={nextStep}
-                        disabled={!isStep1Valid()}
-                        className="btn btn-primary"
+                        onClick={closeModal}
+                        className="btn btn-outline flex-1"
                       >
-                        Next →
+                        Cancel
                       </button>
-                    ) : (
-                      <button
-                        type="submit"
-                        className="btn btn-primary"
-                      >
-                        Create Rulemaking
-                      </button>
-                    )}
+                      {addModalStep < 2 ? (
+                        <button
+                          type="button"
+                          onClick={nextStep}
+                          disabled={!isStep1Valid()}
+                          className="btn btn-primary flex-1"
+                        >
+                          Next →
+                        </button>
+                      ) : (
+                        <button
+                          type="submit"
+                          className="btn btn-primary flex-1"
+                        >
+                          Create Rulemaking
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </form>
