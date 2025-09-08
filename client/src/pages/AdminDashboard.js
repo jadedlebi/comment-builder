@@ -565,7 +565,7 @@ const AdminDashboard = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 pb-1 border-b border-gray-200">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 my-0">Add New Rulemaking</h3>
+                <div className="text-xl font-semibold text-gray-900 my-0">Add New Rulemaking</div>
                 <p className="text-sm text-gray-500 mt-1">Step {addModalStep} of 2</p>
               </div>
               <button
@@ -694,12 +694,12 @@ const AdminDashboard = () => {
 
                 {/* Form Footer - Buttons */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                  <div className="flex flex-col gap-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div className="flex gap-3">
                     {addModalStep > 1 && (
                       <button
                         type="button"
                         onClick={prevStep}
-                        className="btn btn-outline btn-vertical"
+                        className="btn btn-outline flex-1"
                       >
                         ← Previous
                       </button>
@@ -707,7 +707,7 @@ const AdminDashboard = () => {
                     <button
                       type="button"
                       onClick={closeModal}
-                      className="btn btn-outline btn-vertical"
+                      className="btn btn-outline flex-1"
                     >
                       Cancel
                     </button>
@@ -716,14 +716,14 @@ const AdminDashboard = () => {
                         type="button"
                         onClick={nextStep}
                         disabled={!isStep1Valid()}
-                        className="btn btn-primary btn-vertical"
+                        className="btn btn-primary flex-1"
                       >
                         Next →
                       </button>
                     ) : (
                       <button
                         type="submit"
-                        className="btn btn-primary btn-vertical"
+                        className="btn btn-primary flex-1"
                       >
                         Create Rulemaking
                       </button>
@@ -935,7 +935,7 @@ const AdminDashboard = () => {
             </button>
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 pb-1 border-b border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900 my-0">Edit Rulemaking</h3>
+              <div className="text-xl font-semibold text-gray-900 my-0">Edit Rulemaking</div>
             </div>
 
             {/* Scrollable Modal Body */}
@@ -1014,18 +1014,18 @@ const AdminDashboard = () => {
 
             {/* Modal Footer */}
             <div className="p-6 pt-4 border-t border-gray-200">
-              <div className="flex flex-col gap-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="btn btn-outline btn-vertical"
+                  className="btn btn-outline flex-1"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   form="edit-rulemaking-form"
-                  className="btn btn-primary btn-vertical"
+                  className="btn btn-primary flex-1"
                 >
                   Update Rulemaking
                 </button>
