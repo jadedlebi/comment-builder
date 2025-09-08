@@ -563,7 +563,7 @@ const AdminDashboard = () => {
             }}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 pb-2 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 pb-1 border-b border-gray-200">
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">Add New Rulemaking</h3>
                 <p className="text-sm text-gray-500 mt-1">Step {addModalStep} of 2</p>
@@ -600,7 +600,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Progress Bar */}
-            <div className="px-6 pb-4">
+            <div className="px-6 pb-1">
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -934,7 +934,7 @@ const AdminDashboard = () => {
               </svg>
             </button>
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 pb-2 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 pb-1 border-b border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">Edit Rulemaking</h3>
             </div>
 
