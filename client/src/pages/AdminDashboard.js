@@ -688,6 +688,7 @@ const AdminDashboard = () => {
                         type="button"
                         onClick={prevStep}
                         className="btn btn-outline w-full"
+                        style={{ display: 'block' }}
                       >
                         ← Previous
                       </button>
@@ -696,6 +697,7 @@ const AdminDashboard = () => {
                       type="button"
                       onClick={closeModal}
                       className="btn btn-outline w-full"
+                      style={{ display: 'block' }}
                     >
                       Cancel
                     </button>
@@ -705,6 +707,7 @@ const AdminDashboard = () => {
                         onClick={nextStep}
                         disabled={!isStep1Valid()}
                         className="btn btn-primary w-full"
+                        style={{ display: 'block' }}
                       >
                         Next →
                       </button>
@@ -712,6 +715,7 @@ const AdminDashboard = () => {
                       <button
                         type="submit"
                         className="btn btn-primary w-full"
+                        style={{ display: 'block' }}
                       >
                         Create Rulemaking
                       </button>
