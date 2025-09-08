@@ -118,6 +118,17 @@ main {
   gap: 12px !important;
 }
 
+/* Force modal containers to be vertical */
+.bg-white.rounded-lg.shadow-2xl.relative.border.border-gray-200.flex.flex-col {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Ensure modal content stacks vertically */
+.flex-1 {
+  flex: 1 1 0% !important;
+}
+
 /* Forms */
 .form-group {
   margin-bottom: 24px;
@@ -413,7 +424,7 @@ main {
     margin-top: 16px;
   }
   
-  .flex {
+  .flex:not(.bg-white) {
     flex-direction: column;
   }
   
