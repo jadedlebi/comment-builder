@@ -8,7 +8,6 @@ import CommentGenerator from './pages/CommentGenerator';
 import SubmissionSuccess from './pages/SubmissionSuccess';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
-import './App.css';
 
 function App() {
   return (

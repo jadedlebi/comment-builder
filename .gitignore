@@ -107,3 +107,13 @@ service-account-key.json
 server/scripts/add-admin.js
 server/scripts/admin-manager.js
 server/scripts/admin-setup.js
+
+# Environment update scripts (contain credentials)
+update-env-vars.sh
+update-from-env.sh
+
+# Database initialization flags
+database-initialized.flag
+
+# Deployment artifacts
+*.log
