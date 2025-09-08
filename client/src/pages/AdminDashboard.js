@@ -395,7 +395,7 @@ const AdminDashboard = () => {
                         {displayStatus}
                       </span>
                     </div>
-                    <div className="flex space-x-2 ml-4">
+                    <div className="flex gap-3 ml-4">
                       <button 
                         className="btn btn-outline"
                         onClick={() => handleViewRulemaking(rulemaking)}
@@ -423,7 +423,7 @@ const AdminDashboard = () => {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold text-gray-900">Recent Submissions</h2>
-            <div className="flex space-x-2">
+            <div className="flex gap-3">
               <button 
                 onClick={() => exportSubmissions('csv')}
                 className="btn btn-outline"
@@ -683,8 +683,8 @@ const AdminDashboard = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-between p-6 pt-4 border-t border-gray-200">
-              <div>
+            <div className="p-6 pt-4 border-t border-gray-200">
+              <div className="flex justify-end gap-3">
                 {addModalStep > 1 && (
                   <button
                     type="button"
@@ -694,8 +694,6 @@ const AdminDashboard = () => {
                     ← Previous
                   </button>
                 )}
-              </div>
-              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={closeModal}
@@ -992,7 +990,7 @@ const AdminDashboard = () => {
                     This letter will be used as context for generating personalized comments. Users will not see this directly.
                   </p>
                 </div>
-                <div className="flex justify-end pt-6" style={{ gap: '16px' }}>
+                <div className="flex justify-end gap-3 pt-6">
                   <button
                     type="button"
                     onClick={() => setShowEditModal(false)}
