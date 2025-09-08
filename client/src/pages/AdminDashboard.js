@@ -15,6 +15,7 @@ const AdminDashboard = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isModalAnimating, setIsModalAnimating] = useState(false);
+  const [addModalStep, setAddModalStep] = useState(1);
   const [selectedRulemaking, setSelectedRulemaking] = useState(null);
   const [newRulemaking, setNewRulemaking] = useState({
     title: '',
@@ -99,10 +100,32 @@ const AdminDashboard = () => {
   // Function to handle modal close with proper animation
   const closeModal = () => {
     setIsModalAnimating(false);
+    setAddModalStep(1);
     // Wait for animation to complete before removing from DOM
     setTimeout(() => {
       setShowAddModal(false);
     }, 300);
+  };
+
+  // Step navigation functions
+  const nextStep = () => {
+    if (addModalStep < 2) {
+      setAddModalStep(addModalStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (addModalStep > 1) {
+      setAddModalStep(addModalStep - 1);
+    }
+  };
+
+  // Validation for step 1
+  const isStep1Valid = () => {
+    return newRulemaking.title.trim() && 
+           newRulemaking.agency.trim() && 
+           newRulemaking.docket.trim() && 
+           newRulemaking.comment_deadline;
   };
 
   const fetchData = async () => {
@@ -501,7 +524,7 @@ const AdminDashboard = () => {
       {/* Add New Rulemaking Modal */}
       {showAddModal && (
         <div
-          className="fixed inset-0 flex items-center justify-center z-[9999]"
+          className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
           onClick={closeModal}
           style={{
             position: 'fixed',
@@ -515,135 +538,190 @@ const AdminDashboard = () => {
           }}
         >
           <div 
-            className="bg-white rounded-lg shadow-2xl p-8 relative border border-gray-200"
+            className="bg-white rounded-lg shadow-2xl relative border border-gray-200 flex flex-col"
             onClick={(e) => e.stopPropagation()}
             style={{ 
               position: 'relative', 
               zIndex: 10000, 
               width: '700px',
+              maxHeight: '90vh',
               transform: isModalAnimating ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(-20px)',
               opacity: isModalAnimating ? 1 : 0,
               transition: 'all 300ms ease-out'
             }}
           >
-            <button
-              onClick={closeModal}
-              style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#9ca3af',
-                backgroundColor: 'transparent',
-                border: 'none',
-                borderRadius: '50%',
-                cursor: 'pointer',
-                zIndex: 10,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = '#374151';
-                e.target.style.backgroundColor = '#f3f4f6';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = '#9ca3af';
-                e.target.style.backgroundColor = 'transparent';
-              }}
-              aria-label="Close modal"
-            >
-              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <div className="mt-2">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6 pr-14">Add New Rulemaking</h3>
-              <form onSubmit={handleAddRulemaking} className="space-y-4">
-                <div className="form-group">
-                  <label className="form-label">Title *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newRulemaking.title}
-                    onChange={(e) => setNewRulemaking({...newRulemaking, title: e.target.value})}
-                    className="form-input"
-                    placeholder="Enter rulemaking title"
-                  />
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-200">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Add New Rulemaking</h3>
+                <p className="text-sm text-gray-500 mt-1">Step {addModalStep} of 2</p>
+              </div>
+              <button
+                onClick={closeModal}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#9ca3af',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = '#374151';
+                  e.target.style.backgroundColor = '#f3f4f6';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = '#9ca3af';
+                  e.target.style.backgroundColor = 'transparent';
+                }}
+                aria-label="Close modal"
+              >
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="px-6 pb-4">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(addModalStep / 2) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 p-6">
+              <form id="add-rulemaking-form" onSubmit={handleAddRulemaking}>
+                <div className="transition-all duration-300 ease-in-out">
+                  {addModalStep === 1 && (
+                    <div className="space-y-4">
+                      <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                    <div className="form-group">
+                      <label className="form-label">Title *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newRulemaking.title}
+                        onChange={(e) => setNewRulemaking({...newRulemaking, title: e.target.value})}
+                        className="form-input"
+                        placeholder="Enter rulemaking title"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Agency *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newRulemaking.agency}
+                        onChange={(e) => setNewRulemaking({...newRulemaking, agency: e.target.value})}
+                        className="form-input"
+                        placeholder="e.g., CFPB"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Docket Number *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newRulemaking.docket}
+                        onChange={(e) => setNewRulemaking({...newRulemaking, docket: e.target.value})}
+                        className="form-input"
+                        placeholder="e.g., CFPB-2025-0018"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Comment Deadline *</label>
+                      <input
+                        type="date"
+                        required
+                        value={newRulemaking.comment_deadline}
+                        onChange={(e) => setNewRulemaking({...newRulemaking, comment_deadline: e.target.value})}
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                  {addModalStep === 2 && (
+                    <div className="space-y-4">
+                      <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Details</h4>
+                    <div className="form-group">
+                      <label className="form-label">Description</label>
+                      <textarea
+                        value={newRulemaking.description}
+                        onChange={(e) => setNewRulemaking({...newRulemaking, description: e.target.value})}
+                        rows={4}
+                        className="form-input"
+                        placeholder="Enter rulemaking description"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">NCRC Comment Letter</label>
+                      <textarea
+                        value={newRulemaking.ncrc_comment_letter}
+                        onChange={(e) => setNewRulemaking({...newRulemaking, ncrc_comment_letter: e.target.value})}
+                        rows={6}
+                        className="form-input"
+                        placeholder="Paste the NCRC comment letter here. This will be used as context for AI-generated personalized comments."
+                      />
+                      <p className="text-sm text-gray-500 mt-1">
+                        This letter will be used as context for generating personalized comments. Users will not see this directly.
+                      </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Agency *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newRulemaking.agency}
-                    onChange={(e) => setNewRulemaking({...newRulemaking, agency: e.target.value})}
-                    className="form-input"
-                    placeholder="e.g., CFPB"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Docket Number *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newRulemaking.docket}
-                    onChange={(e) => setNewRulemaking({...newRulemaking, docket: e.target.value})}
-                    className="form-input"
-                    placeholder="e.g., CFPB-2025-0018"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Comment Deadline *</label>
-                  <input
-                    type="date"
-                    required
-                    value={newRulemaking.comment_deadline}
-                    onChange={(e) => setNewRulemaking({...newRulemaking, comment_deadline: e.target.value})}
-                    className="form-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    value={newRulemaking.description}
-                    onChange={(e) => setNewRulemaking({...newRulemaking, description: e.target.value})}
-                    rows={3}
-                    className="form-input"
-                    placeholder="Enter rulemaking description"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">NCRC Comment Letter</label>
-                  <textarea
-                    value={newRulemaking.ncrc_comment_letter}
-                    onChange={(e) => setNewRulemaking({...newRulemaking, ncrc_comment_letter: e.target.value})}
-                    rows={8}
-                    className="form-input"
-                    placeholder="Paste the NCRC comment letter here. This will be used as context for AI-generated personalized comments."
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    This letter will be used as context for generating personalized comments. Users will not see this directly.
-                  </p>
-                </div>
-                <div className="flex justify-end pt-6" style={{ gap: '16px' }}>
+              </form>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-between p-6 pt-4 border-t border-gray-200">
+              <div>
+                {addModalStep > 1 && (
                   <button
                     type="button"
-                    onClick={closeModal}
+                    onClick={prevStep}
                     className="btn btn-outline"
                   >
-                    Cancel
+                    ← Previous
                   </button>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="btn btn-outline"
+                >
+                  Cancel
+                </button>
+                {addModalStep < 2 ? (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    disabled={!isStep1Valid()}
+                    className="btn btn-primary"
+                  >
+                    Next →
+                  </button>
+                ) : (
                   <button
                     type="submit"
+                    form="add-rulemaking-form"
                     className="btn btn-primary"
                   >
                     Create Rulemaking
                   </button>
-                </div>
-              </form>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -789,7 +867,7 @@ const AdminDashboard = () => {
       {/* Edit Rulemaking Modal */}
       {showEditModal && selectedRulemaking && (
         <div
-          className="fixed inset-0 flex items-center justify-center z-[9999]"
+          className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
           onClick={() => setShowEditModal(false)}
           style={{
             position: 'fixed',
@@ -803,14 +881,13 @@ const AdminDashboard = () => {
           }}
         >
           <div 
-            className="bg-white rounded-lg shadow-2xl p-8 relative border border-gray-200"
+            className="bg-white rounded-lg shadow-2xl relative border border-gray-200 flex flex-col"
             onClick={(e) => e.stopPropagation()}
             style={{ 
               position: 'relative', 
               zIndex: 10000, 
               width: '700px',
-              maxHeight: '80vh',
-              overflowY: 'auto'
+              maxHeight: '90vh'
             }}
           >
             <button

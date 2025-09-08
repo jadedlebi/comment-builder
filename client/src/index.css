@@ -92,9 +92,18 @@ main {
   background-color: #4b5563;
 }
 
-.btn:disabled {
+.btn:disabled,
+.btn-disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: #9ca3af;
+  color: #6b7280;
+}
+
+.btn-disabled:hover {
+  background-color: #9ca3af;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Forms */
