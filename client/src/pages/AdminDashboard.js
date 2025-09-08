@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Users, TrendingUp, Download, Plus, Edit, Eye, LogOut } from 'lucide-react';
+import { FileText, Users, TrendingUp, Download, Plus, Edit, Eye, LogOut, Trash2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
@@ -14,9 +14,11 @@ const AdminDashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isModalAnimating, setIsModalAnimating] = useState(false);
   const [addModalStep, setAddModalStep] = useState(1);
   const [selectedRulemaking, setSelectedRulemaking] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [newRulemaking, setNewRulemaking] = useState({
     title: '',
     agency: '',
@@ -35,6 +37,14 @@ const AdminDashboard = () => {
   });
   
   const { user, logout } = useAuth();
+
+  // Notification functions
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification(null);
+    }, 4000);
+  };
 
   // Helper function to extract date string from BigQuery format
   const getDateString = (dateObj) => {
@@ -177,9 +187,11 @@ const AdminDashboard = () => {
         description: '',
         ncrc_comment_letter: ''
       });
+      showNotification('Rulemaking created successfully!', 'success');
     } catch (err) {
       setError('Failed to create rulemaking');
       console.error('Error creating rulemaking:', err);
+      showNotification('Failed to create rulemaking', 'error');
     }
   };
 
@@ -227,9 +239,30 @@ const AdminDashboard = () => {
         description: '',
         ncrc_comment_letter: ''
       });
+      showNotification('Rulemaking updated successfully!', 'success');
     } catch (err) {
       setError('Failed to update rulemaking');
       console.error('Error updating rulemaking:', err);
+      showNotification('Failed to update rulemaking', 'error');
+    }
+  };
+
+  const handleDeleteRulemaking = (rulemaking) => {
+    setSelectedRulemaking(rulemaking);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteRulemaking = async () => {
+    try {
+      await api.delete(`/rulemakings/${selectedRulemaking.id}`);
+      setRulemakings(rulemakings.filter(r => r.id !== selectedRulemaking.id));
+      setShowDeleteModal(false);
+      setSelectedRulemaking(null);
+      showNotification('Rulemaking deleted successfully!', 'success');
+    } catch (err) {
+      setError('Failed to delete rulemaking');
+      console.error('Error deleting rulemaking:', err);
+      showNotification('Failed to delete rulemaking', 'error');
     }
   };
 
@@ -280,6 +313,28 @@ const AdminDashboard = () => {
 
   return (
     <div className="container">
+      {/* Notification */}
+      {notification && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+          notification.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : 'bg-red-500 text-white'
+        }`}>
+          <div className="flex items-center">
+            <div className="mr-2">
+              {notification.type === 'success' ? '✓' : '✗'}
+            </div>
+            <div>{notification.message}</div>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-4 text-white hover:text-gray-200"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mb-8">
         <div className="flex justify-between items-start">
           <div>
@@ -435,6 +490,13 @@ const AdminDashboard = () => {
                         title="Edit rulemaking"
                       >
                         <Edit size={16} />
+                      </button>
+                      <button 
+                        className="btn btn-outline text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDeleteRulemaking(rulemaking)}
+                        title="Delete rulemaking"
+                      >
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
@@ -1043,6 +1105,104 @@ const AdminDashboard = () => {
                   style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                 >
                   Update Rulemaking
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedRulemaking && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
+          onClick={() => setShowDeleteModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            overflow: 'hidden',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            transition: 'background-color 300ms ease-out'
+          }}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-2xl p-8 relative border border-gray-200"
+            onClick={(e) => e.stopPropagation()}
+            style={{ 
+              position: 'relative', 
+              zIndex: 10000, 
+              width: '500px',
+              maxHeight: '80vh'
+            }}
+          >
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#9ca3af',
+                backgroundColor: 'transparent',
+                border: 'none',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                zIndex: 10,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = '#374151';
+                e.target.style.backgroundColor = '#f3f4f6';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = '#9ca3af';
+                e.target.style.backgroundColor = 'transparent';
+              }}
+              aria-label="Close modal"
+            >
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="mt-2">
+              <div className="flex items-center mb-6">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <Trash2 className="w-6 h-6 text-red-600" />
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Delete Rulemaking</h3>
+                  <p className="text-sm text-gray-500">This action cannot be undone.</p>
+                </div>
+              </div>
+              <div className="mb-6">
+                <p className="text-gray-700">
+                  Are you sure you want to delete <strong>"{selectedRulemaking.title}"</strong>? 
+                  This will permanently remove the rulemaking and all associated data.
+                </p>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDeleteRulemaking}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  Delete Rulemaking
                 </button>
               </div>
             </div>

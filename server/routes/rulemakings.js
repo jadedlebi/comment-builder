@@ -190,6 +190,31 @@ router.put('/:id', validateRulemaking, async (req, res, next) => {
   }
 });
 
+// DELETE /api/rulemakings/:id - Delete rulemaking (admin only)
+router.delete('/:id', async (req, res, next) => {
+  try {
+    console.log('🔍 DELETE /api/rulemakings - Rulemaking ID:', req.params.id);
+    
+    const existingRulemaking = await db.getById('rulemakings', req.params.id);
+    if (!existingRulemaking) {
+      console.log('❌ Rulemaking not found:', req.params.id);
+      return res.status(404).json({ error: 'Rulemaking not found' });
+    }
+
+    console.log('🔍 Deleting rulemaking:', existingRulemaking.title);
+    
+    // Delete the rulemaking
+    await db.delete('rulemakings', req.params.id);
+    console.log('✅ Successfully deleted rulemaking');
+    
+    res.json({ message: 'Rulemaking deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error in DELETE /api/rulemakings:', error);
+    console.error('❌ Error stack:', error.stack);
+    next(error);
+  }
+});
+
 // GET /api/rulemakings/:id/analytics - Get analytics for a rulemaking
 router.get('/:id/analytics', async (req, res, next) => {
   try {

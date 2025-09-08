@@ -212,6 +212,29 @@ const db = {
         AND created_at <= @endDate
     `;
     return await this.query(sql, { rulemakingId, startDate, endDate });
+  },
+
+  // Delete a record
+  async delete(tableName, id) {
+    const datasetId = getDatasetId();
+    const sql = `DELETE FROM \`${datasetId}.${tableName}\` WHERE id = @id`;
+    
+    console.log('🔍 BigQuery delete - SQL:', sql);
+    console.log('🔍 BigQuery delete - ID:', id);
+    
+    try {
+      const result = await this.query(sql, { id });
+      console.log('✅ BigQuery delete - Result:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ BigQuery delete error:', error);
+      console.error('❌ BigQuery delete error details:', {
+        code: error.code,
+        message: error.message,
+        errors: error.errors
+      });
+      throw error;
+    }
   }
 };
 
