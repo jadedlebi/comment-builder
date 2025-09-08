@@ -22,8 +22,38 @@ const PORT = process.env.PORT || 3001;
 // Trust proxy for Cloud Run (fixes rate limiting issue)
 app.set('trust proxy', 1);
 
-// Security middleware
-app.use(helmet());
+// Security middleware with CSP configuration for reCAPTCHA
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for React
+        "https://www.google.com", // reCAPTCHA scripts
+        "https://www.gstatic.com" // reCAPTCHA static resources
+      ],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for React inline styles
+        "https://fonts.googleapis.com" // Google Fonts
+      ],
+      fontSrc: [
+        "'self'",
+        "https://fonts.gstatic.com" // Google Fonts
+      ],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https://www.google.com" // reCAPTCHA images
+      ],
+      connectSrc: [
+        "'self'",
+        "https://www.google.com" // reCAPTCHA API calls
+      ]
+    }
+  }
+}));
 
 // CORS configuration
 app.use(cors({
