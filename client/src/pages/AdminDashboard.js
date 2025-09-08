@@ -565,8 +565,8 @@ const AdminDashboard = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 pb-1 border-b border-gray-200">
               <div>
-                <div className="text-xl font-semibold text-gray-900 my-0">Add New Rulemaking</div>
-                <p className="text-sm text-gray-500 mt-1">Step {addModalStep} of 2</p>
+                <div className="text-xl font-semibold text-gray-900 modal-title">Add New Rulemaking</div>
+                <p className="text-sm text-gray-500 modal-subtitle">Step {addModalStep} of 2</p>
               </div>
               <button
                 onClick={closeModal}
@@ -939,7 +939,7 @@ const AdminDashboard = () => {
             </button>
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 pb-1 border-b border-gray-200">
-              <div className="text-xl font-semibold text-gray-900 my-0">Edit Rulemaking</div>
+              <div className="text-xl font-semibold text-gray-900 modal-title">Edit Rulemaking</div>
             </div>
 
             {/* Scrollable Modal Body */}
