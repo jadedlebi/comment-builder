@@ -88,13 +88,21 @@ router.post('/', validateRulemaking, async (req, res, next) => {
       ncrc_comment_letter
     } = req.body;
 
+    // Convert comment_deadline from ISO string to DATE format for BigQuery
+    let formattedCommentDeadline = comment_deadline;
+    if (comment_deadline) {
+      const date = new Date(comment_deadline);
+      formattedCommentDeadline = date.toISOString().split('T')[0];
+      console.log('🔍 Converted comment_deadline:', formattedCommentDeadline);
+    }
+
     console.log('🔍 Parsed data:', {
       agency,
       title,
       description,
       docket_id,
       federal_register_url,
-      comment_deadline,
+      comment_deadline: formattedCommentDeadline,
       status,
       context_documents,
       legal_analysis,
@@ -109,7 +117,7 @@ router.post('/', validateRulemaking, async (req, res, next) => {
       description,
       docket_id,
       federal_register_url,
-      comment_deadline,
+      comment_deadline: formattedCommentDeadline,
       status,
       context_documents: context_documents ? JSON.stringify(context_documents) : null,
       legal_analysis,
