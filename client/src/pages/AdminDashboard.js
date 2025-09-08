@@ -952,8 +952,8 @@ const AdminDashboard = () => {
                     placeholder="Enter rulemaking title"
                   />
                 </div>
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className="form-group">
+                <div className="grid grid-cols-3 gap-4 mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                  <div className="form-group" style={{ marginBottom: '0' }}>
                     <label className="form-label">Agency *</label>
                     <input
                       type="text"
@@ -964,7 +964,7 @@ const AdminDashboard = () => {
                       placeholder="e.g., CFPB"
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="form-group" style={{ marginBottom: '0' }}>
                     <label className="form-label">Docket Number *</label>
                     <input
                       type="text"
@@ -975,7 +975,7 @@ const AdminDashboard = () => {
                       placeholder="e.g., CFPB-2025-0018"
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="form-group" style={{ marginBottom: '0' }}>
                     <label className="form-label">Comment Deadline *</label>
                     <input
                       type="date"
