@@ -19,6 +19,9 @@ validateEnv();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy for Cloud Run (fixes rate limiting issue)
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet());
 
