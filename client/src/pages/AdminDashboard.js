@@ -599,127 +599,126 @@ const AdminDashboard = () => {
 
             {/* Modal Body */}
             <div className="flex-1 p-6">
-              <form id="add-rulemaking-form" onSubmit={handleAddRulemaking}>
-                <div className="transition-all duration-300 ease-in-out">
+              <form id="add-rulemaking-form" onSubmit={handleAddRulemaking} className="h-full flex flex-col">
+                <div className="flex-1 transition-all duration-300 ease-in-out">
                   {addModalStep === 1 && (
                     <div className="space-y-4">
                       <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
-                    <div className="form-group">
-                      <label className="form-label">Title *</label>
-                      <input
-                        type="text"
-                        required
-                        value={newRulemaking.title}
-                        onChange={(e) => setNewRulemaking({...newRulemaking, title: e.target.value})}
-                        className="form-input"
-                        placeholder="Enter rulemaking title"
-                      />
+                      <div className="form-group">
+                        <label className="form-label">Title *</label>
+                        <input
+                          type="text"
+                          required
+                          value={newRulemaking.title}
+                          onChange={(e) => setNewRulemaking({...newRulemaking, title: e.target.value})}
+                          className="form-input"
+                          placeholder="Enter rulemaking title"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Agency *</label>
+                        <input
+                          type="text"
+                          required
+                          value={newRulemaking.agency}
+                          onChange={(e) => setNewRulemaking({...newRulemaking, agency: e.target.value})}
+                          className="form-input"
+                          placeholder="e.g., CFPB"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Docket Number *</label>
+                        <input
+                          type="text"
+                          required
+                          value={newRulemaking.docket}
+                          onChange={(e) => setNewRulemaking({...newRulemaking, docket: e.target.value})}
+                          className="form-input"
+                          placeholder="e.g., CFPB-2025-0018"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Comment Deadline *</label>
+                        <input
+                          type="date"
+                          required
+                          value={newRulemaking.comment_deadline}
+                          onChange={(e) => setNewRulemaking({...newRulemaking, comment_deadline: e.target.value})}
+                          className="form-input"
+                        />
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">Agency *</label>
-                      <input
-                        type="text"
-                        required
-                        value={newRulemaking.agency}
-                        onChange={(e) => setNewRulemaking({...newRulemaking, agency: e.target.value})}
-                        className="form-input"
-                        placeholder="e.g., CFPB"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Docket Number *</label>
-                      <input
-                        type="text"
-                        required
-                        value={newRulemaking.docket}
-                        onChange={(e) => setNewRulemaking({...newRulemaking, docket: e.target.value})}
-                        className="form-input"
-                        placeholder="e.g., CFPB-2025-0018"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Comment Deadline *</label>
-                      <input
-                        type="date"
-                        required
-                        value={newRulemaking.comment_deadline}
-                        onChange={(e) => setNewRulemaking({...newRulemaking, comment_deadline: e.target.value})}
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-                )}
+                  )}
 
                   {addModalStep === 2 && (
                     <div className="space-y-4">
                       <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Details</h4>
-                    <div className="form-group">
-                      <label className="form-label">Description</label>
-                      <textarea
-                        value={newRulemaking.description}
-                        onChange={(e) => setNewRulemaking({...newRulemaking, description: e.target.value})}
-                        rows={4}
-                        className="form-input"
-                        placeholder="Enter rulemaking description"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">NCRC Comment Letter</label>
-                      <textarea
-                        value={newRulemaking.ncrc_comment_letter}
-                        onChange={(e) => setNewRulemaking({...newRulemaking, ncrc_comment_letter: e.target.value})}
-                        rows={6}
-                        className="form-input"
-                        placeholder="Paste the NCRC comment letter here. This will be used as context for AI-generated personalized comments."
-                      />
-                      <p className="text-sm text-gray-500 mt-1">
-                        This letter will be used as context for generating personalized comments. Users will not see this directly.
-                      </p>
+                      <div className="form-group">
+                        <label className="form-label">Description</label>
+                        <textarea
+                          value={newRulemaking.description}
+                          onChange={(e) => setNewRulemaking({...newRulemaking, description: e.target.value})}
+                          rows={4}
+                          className="form-input"
+                          placeholder="Enter rulemaking description"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">NCRC Comment Letter</label>
+                        <textarea
+                          value={newRulemaking.ncrc_comment_letter}
+                          onChange={(e) => setNewRulemaking({...newRulemaking, ncrc_comment_letter: e.target.value})}
+                          rows={6}
+                          className="form-input"
+                          placeholder="Paste the NCRC comment letter here. This will be used as context for AI-generated personalized comments."
+                        />
+                        <p className="text-sm text-gray-500 mt-1">
+                          This letter will be used as context for generating personalized comments. Users will not see this directly.
+                        </p>
                       </div>
                     </div>
                   )}
                 </div>
-              </form>
-            </div>
 
-            {/* Modal Footer */}
-            <div className="p-6 pt-4 border-t border-gray-200">
-              <div className="flex justify-end gap-3">
-                {addModalStep > 1 && (
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    className="btn btn-outline"
-                  >
-                    ← Previous
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="btn btn-outline"
-                >
-                  Cancel
-                </button>
-                {addModalStep < 2 ? (
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    disabled={!isStep1Valid()}
-                    className="btn btn-primary"
-                  >
-                    Next →
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    form="add-rulemaking-form"
-                    className="btn btn-primary"
-                  >
-                    Create Rulemaking
-                  </button>
-                )}
-              </div>
+                {/* Form Footer - Buttons */}
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <div className="flex justify-end gap-3">
+                    {addModalStep > 1 && (
+                      <button
+                        type="button"
+                        onClick={prevStep}
+                        className="btn btn-outline"
+                      >
+                        ← Previous
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      className="btn btn-outline"
+                    >
+                      Cancel
+                    </button>
+                    {addModalStep < 2 ? (
+                      <button
+                        type="button"
+                        onClick={nextStep}
+                        disabled={!isStep1Valid()}
+                        className="btn btn-primary"
+                      >
+                        Next →
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                      >
+                        Create Rulemaking
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
