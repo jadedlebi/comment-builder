@@ -134,8 +134,12 @@ router.post('/', validateRulemaking, async (req, res, next) => {
 // PUT /api/rulemakings/:id - Update rulemaking (admin only)
 router.put('/:id', validateRulemaking, async (req, res, next) => {
   try {
+    console.log('🔍 PUT /api/rulemakings - Request body:', JSON.stringify(req.body, null, 2));
+    console.log('🔍 PUT /api/rulemakings - Rulemaking ID:', req.params.id);
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ Validation errors:', errors.array());
       return res.status(400).json({ 
         error: 'Validation failed', 
         details: errors.array() 
@@ -144,10 +148,20 @@ router.put('/:id', validateRulemaking, async (req, res, next) => {
 
     const existingRulemaking = await db.getById('rulemakings', req.params.id);
     if (!existingRulemaking) {
+      console.log('❌ Rulemaking not found:', req.params.id);
       return res.status(404).json({ error: 'Rulemaking not found' });
     }
 
     const updates = { ...req.body };
+    
+    // Convert comment_deadline from ISO string to DATE format for BigQuery
+    if (updates.comment_deadline) {
+      // Convert ISO string to YYYY-MM-DD format for BigQuery DATE type
+      const date = new Date(updates.comment_deadline);
+      updates.comment_deadline = date.toISOString().split('T')[0];
+      console.log('🔍 Converted comment_deadline:', updates.comment_deadline);
+    }
+    
     if (updates.context_documents) {
       updates.context_documents = JSON.stringify(updates.context_documents);
     }
@@ -155,10 +169,15 @@ router.put('/:id', validateRulemaking, async (req, res, next) => {
       updates.opposition_points = JSON.stringify(updates.opposition_points);
     }
 
+    console.log('🔍 Updates to apply:', JSON.stringify(updates, null, 2));
+    
     await db.update('rulemakings', req.params.id, updates);
     const updatedRulemaking = await db.getById('rulemakings', req.params.id);
+    console.log('✅ Successfully updated rulemaking');
     res.json({ rulemaking: updatedRulemaking });
   } catch (error) {
+    console.error('❌ Error in PUT /api/rulemakings:', error);
+    console.error('❌ Error stack:', error.stack);
     next(error);
   }
 });

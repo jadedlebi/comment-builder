@@ -160,9 +160,21 @@ const db = {
     
     const params = { ...updates, id };
     
+    console.log('🔍 BigQuery update - SQL:', sql);
+    console.log('🔍 BigQuery update - Params:', JSON.stringify(params, null, 2));
+    
     try {
-      await this.query(sql, params);
+      const result = await this.query(sql, params);
+      console.log('✅ BigQuery update - Result:', result);
+      return result;
     } catch (error) {
+      console.error('❌ BigQuery update error:', error);
+      console.error('❌ BigQuery update error details:', {
+        code: error.code,
+        message: error.message,
+        errors: error.errors
+      });
+      
       // Handle BigQuery streaming buffer limitation
       if (error.message && error.message.includes('streaming buffer')) {
         console.warn(`Cannot update ${tableName} record ${id} - still in streaming buffer. This is normal for recently inserted records.`);
