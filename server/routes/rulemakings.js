@@ -14,13 +14,30 @@ const validateRulemaking = [
   body('status').isIn(['active', 'closed', 'draft']).withMessage('Status must be active, closed, or draft')
 ];
 
-// GET /api/rulemakings - Get all active rulemakings
+// GET /api/rulemakings - Get all active rulemakings (public endpoint)
 router.get('/', async (req, res, next) => {
+  try {
+    const datasetId = getDatasetId();
+    const now = new Date().toISOString().split('T')[0];
+    const sql = `
+      SELECT * FROM \`${datasetId}.rulemakings\` 
+      WHERE status = 'active' 
+      AND comment_deadline >= @now
+      ORDER BY comment_deadline ASC
+    `;
+    const rulemakings = await db.query(sql, { now });
+    res.json({ rulemakings });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/rulemakings/admin - Get all rulemakings including expired ones (admin only)
+router.get('/admin', async (req, res, next) => {
   try {
     const datasetId = getDatasetId();
     const sql = `
       SELECT * FROM \`${datasetId}.rulemakings\` 
-      WHERE status = 'active' 
       ORDER BY comment_deadline ASC
     `;
     const rulemakings = await db.query(sql);

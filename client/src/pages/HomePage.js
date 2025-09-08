@@ -138,15 +138,17 @@ const HomePage = () => {
                   </div>
                   
                   <div className="ml-6 flex-shrink-0">
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 min-w-[180px]">
-                      <div className={`flex items-center mb-2 ${deadlineInfo.color}`}>
-                        <Calendar size={16} className="mr-2 flex-shrink-0" />
-                        <span className="font-semibold text-sm">
-                          {format(parseISO(getDateString(rulemaking.comment_deadline)), 'MMM dd, yyyy')}
-                        </span>
-                      </div>
-                      <div className={`text-xs font-medium ${deadlineInfo.color} text-center`}>
-                        {deadlineInfo.text}
+                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 min-w-[220px]">
+                      <div className="text-center">
+                        <div className={`flex items-center justify-center mb-3 ${deadlineInfo.color}`}>
+                          <Calendar size={18} className="mr-2 flex-shrink-0" />
+                          <span className="font-bold text-lg">
+                            {format(parseISO(getDateString(rulemaking.comment_deadline)), 'MMM dd, yyyy')}
+                          </span>
+                        </div>
+                        <div className={`text-sm font-semibold ${deadlineInfo.color} text-center`}>
+                          {deadlineInfo.text}
+                        </div>
                       </div>
                     </div>
                   </div>

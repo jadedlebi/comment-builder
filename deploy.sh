@@ -18,6 +18,18 @@ SERVICE_NAME="comment-builder"
 REGION="us-east1"
 IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
 
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    echo -e "${BLUE}📋 Loading environment variables from .env file...${NC}"
+    # Use a more robust method to load env vars that handles multiline values
+    set -a
+    source .env
+    set +a
+else
+    echo -e "${RED}❌ Error: .env file not found${NC}"
+    exit 1
+fi
+
 echo -e "${BLUE}🚀 Comment Builder - Manual Deployment${NC}"
 echo "=============================================="
 
@@ -90,7 +102,7 @@ gcloud run deploy $SERVICE_NAME \
     --min-instances 0 \
     --concurrency 80 \
     --timeout 300 \
-    --set-env-vars NODE_ENV=production,PORT=8080
+    --set-env-vars NODE_ENV=production,PORT=8080,CLAUDE_API_KEY="$CLAUDE_API_KEY",CLAUDE_MODEL="$CLAUDE_MODEL",BQ_TYPE="$BQ_TYPE",BQ_PROJECT_ID="$BQ_PROJECT_ID",BQ_PRIVATE_KEY_ID="$BQ_PRIVATE_KEY_ID",BQ_PRIVATE_KEY="$BQ_PRIVATE_KEY",BQ_CLIENT_EMAIL="$BQ_CLIENT_EMAIL",BQ_CLIENT_ID="$BQ_CLIENT_ID",BQ_AUTH_URI="$BQ_AUTH_URI",BQ_TOKEN_URI="$BQ_TOKEN_URI",BQ_AUTH_PROVIDER_X509_CERT_URL="$BQ_AUTH_PROVIDER_X509_CERT_URL",BQ_CLIENT_X509_CERT_URL="$BQ_CLIENT_X509_CERT_URL",BIGQUERY_DATASET="$BIGQUERY_DATASET",RECAPTCHA_SITE_KEY="$RECAPTCHA_SITE_KEY",RECAPTCHA_SECRET_KEY="$RECAPTCHA_SECRET_KEY",CLIENT_URL="$CLIENT_URL",RATE_LIMIT_WINDOW_MS="$RATE_LIMIT_WINDOW_MS",RATE_LIMIT_MAX_REQUESTS="$RATE_LIMIT_MAX_REQUESTS",REACT_APP_RECAPTCHA_SITE_KEY="$REACT_APP_RECAPTCHA_SITE_KEY"
 
 # Get the service URL
 SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --platform managed --region $REGION --format 'value(status.url)')

@@ -43,6 +43,19 @@ const AdminDashboard = () => {
     }
   };
 
+  // Helper function to check if rulemaking is expired
+  const isRulemakingExpired = (deadline) => {
+    try {
+      const deadlineString = getDateString(deadline);
+      const deadlineDate = parseISO(deadlineString);
+      const now = new Date();
+      return deadlineDate < now;
+    } catch (error) {
+      console.error('Date parsing error:', error, deadline);
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -84,7 +97,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       const [rulemakingsRes, submissionsRes, statsRes] = await Promise.all([
-        api.get('/rulemakings'),
+        api.get('/rulemakings/admin'),
         api.get('/submissions?limit=50'),
         api.get('/submissions/stats')
       ]);
@@ -279,38 +292,46 @@ const AdminDashboard = () => {
           </div>
 
           <div className="space-y-4">
-            {rulemakings.map((rulemaking) => (
-              <div key={rulemaking.id} className="card">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {rulemaking.title}
-                    </h3>
-                    <p className="text-gray-600 mb-2">
-                      <strong>Agency:</strong> {rulemaking.agency} | <strong>Docket:</strong> {rulemaking.docket_id}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      <strong>Deadline:</strong> {formatDate(rulemaking.comment_deadline, 'MMMM dd, yyyy')}
-                    </p>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ${
-                      rulemaking.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {rulemaking.status}
-                    </span>
-                  </div>
-                  <div className="flex space-x-2 ml-4">
-                    <button className="btn btn-outline">
-                      <Eye size={16} />
-                    </button>
-                    <button className="btn btn-outline">
-                      <Edit size={16} />
-                    </button>
+            {rulemakings.map((rulemaking) => {
+              const isExpired = isRulemakingExpired(rulemaking.comment_deadline);
+              const displayStatus = isExpired ? 'expired' : rulemaking.status;
+              
+              return (
+                <div key={rulemaking.id} className={`card ${isExpired ? 'opacity-75 bg-gray-50' : ''}`}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {rulemaking.title}
+                        {isExpired && <span className="ml-2 text-sm text-red-600">(Expired)</span>}
+                      </h3>
+                      <p className="text-gray-600 mb-2">
+                        <strong>Agency:</strong> {rulemaking.agency} | <strong>Docket:</strong> {rulemaking.docket_id}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        <strong>Deadline:</strong> {formatDate(rulemaking.comment_deadline, 'MMMM dd, yyyy')}
+                      </p>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ${
+                        displayStatus === 'active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : displayStatus === 'expired'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {displayStatus}
+                      </span>
+                    </div>
+                    <div className="flex space-x-2 ml-4">
+                      <button className="btn btn-outline">
+                        <Eye size={16} />
+                      </button>
+                      <button className="btn btn-outline">
+                        <Edit size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
