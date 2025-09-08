@@ -611,7 +611,7 @@ const AdminDashboard = () => {
 
             {/* Modal Body */}
             <div className="flex-1 p-6">
-              <form id="add-rulemaking-form" onSubmit={handleAddRulemaking} className="h-full flex flex-col">
+              <form id="add-rulemaking-form" onSubmit={handleAddRulemaking} className="h-full">
                 <div className="flex-1 transition-all duration-300 ease-in-out">
                   {addModalStep === 1 && (
                     <div className="space-y-4">
@@ -940,7 +940,7 @@ const AdminDashboard = () => {
 
             {/* Scrollable Modal Body */}
             <div className="flex-1 overflow-y-auto p-4">
-              <form id="edit-rulemaking-form" onSubmit={handleUpdateRulemaking} className="space-y-4">
+              <form id="edit-rulemaking-form" onSubmit={handleUpdateRulemaking} className="h-full">
                 <div className="form-group">
                   <label className="form-label">Title *</label>
                   <input
