@@ -688,7 +688,7 @@ const AdminDashboard = () => {
                         type="button"
                         onClick={prevStep}
                         className="btn btn-outline w-full"
-                        style={{ display: 'block' }}
+                        style={{ display: 'block', width: '100%' }}
                       >
                         ← Previous
                       </button>
@@ -697,7 +697,7 @@ const AdminDashboard = () => {
                       type="button"
                       onClick={closeModal}
                       className="btn btn-outline w-full"
-                      style={{ display: 'block' }}
+                      style={{ display: 'block', width: '100%' }}
                     >
                       Cancel
                     </button>
@@ -707,7 +707,7 @@ const AdminDashboard = () => {
                         onClick={nextStep}
                         disabled={!isStep1Valid()}
                         className="btn btn-primary w-full"
-                        style={{ display: 'block' }}
+                        style={{ display: 'block', width: '100%' }}
                       >
                         Next →
                       </button>
@@ -715,7 +715,7 @@ const AdminDashboard = () => {
                       <button
                         type="submit"
                         className="btn btn-primary w-full"
-                        style={{ display: 'block' }}
+                        style={{ display: 'block', width: '100%' }}
                       >
                         Create Rulemaking
                       </button>
@@ -993,20 +993,24 @@ const AdminDashboard = () => {
                     This letter will be used as context for generating personalized comments. Users will not see this directly.
                   </p>
                 </div>
-                <div className="flex justify-end gap-3 pt-6">
-                  <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
-                    className="btn btn-outline"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                  >
-                    Update Rulemaking
-                  </button>
+                <div className="pt-6">
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowEditModal(false)}
+                      className="btn btn-outline w-full"
+                      style={{ display: 'block', width: '100%' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary w-full"
+                      style={{ display: 'block', width: '100%' }}
+                    >
+                      Update Rulemaking
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
