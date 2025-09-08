@@ -694,7 +694,7 @@ const AdminDashboard = () => {
 
                 {/* Form Footer - Buttons */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {addModalStep > 1 && (
                       <button
                         type="button"
@@ -939,7 +939,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Scrollable Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-4">
               <form id="edit-rulemaking-form" onSubmit={handleUpdateRulemaking} className="space-y-4">
                 <div className="form-group">
                   <label className="form-label">Title *</label>
@@ -1012,7 +1012,7 @@ const AdminDashboard = () => {
 
             {/* Modal Footer */}
             <div className="p-6 pt-4 border-t border-gray-200">
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
