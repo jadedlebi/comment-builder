@@ -5,6 +5,17 @@
 
 set -e  # Exit on any error
 
+# Cleanup function
+cleanup() {
+    if [ -n "$TEMP_KEY_FILE" ] && [ -f "$TEMP_KEY_FILE" ]; then
+        echo -e "${BLUE}🧹 Cleaning up temporary files...${NC}"
+        rm -f "$TEMP_KEY_FILE"
+    fi
+}
+
+# Set trap to cleanup on exit
+trap cleanup EXIT
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -47,6 +58,34 @@ if ! command -v gcloud &> /dev/null; then
     exit 1
 fi
 
+# Set up service account authentication using environment variables
+echo -e "${BLUE}🔐 Setting up service account authentication...${NC}"
+if [ -z "$BQ_CLIENT_EMAIL" ] || [ -z "$BQ_PRIVATE_KEY" ]; then
+    echo -e "${RED}❌ Error: Service account credentials not found in .env file${NC}"
+    echo -e "${YELLOW}   Make sure BQ_CLIENT_EMAIL and BQ_PRIVATE_KEY are set${NC}"
+    exit 1
+fi
+
+# Create temporary service account key file
+TEMP_KEY_FILE=$(mktemp)
+cat > "$TEMP_KEY_FILE" << EOF
+{
+  "type": "service_account",
+  "project_id": "$BQ_PROJECT_ID",
+  "private_key_id": "$BQ_PRIVATE_KEY_ID",
+  "private_key": "$BQ_PRIVATE_KEY",
+  "client_email": "$BQ_CLIENT_EMAIL",
+  "client_id": "$BQ_CLIENT_ID",
+  "auth_uri": "$BQ_AUTH_URI",
+  "token_uri": "$BQ_TOKEN_URI",
+  "auth_provider_x509_cert_url": "$BQ_AUTH_PROVIDER_X509_CERT_URL",
+  "client_x509_cert_url": "$BQ_CLIENT_X509_CERT_URL"
+}
+EOF
+
+# Set the service account key file
+export GOOGLE_APPLICATION_CREDENTIALS="$TEMP_KEY_FILE"
+
 # Check if docker is available
 if ! command -v docker &> /dev/null; then
     echo -e "${RED}❌ Error: Docker is not installed${NC}"
@@ -61,12 +100,9 @@ echo "  Region: $REGION"
 echo "  Image: $IMAGE_NAME"
 echo ""
 
-# Check if we're authenticated
-echo -e "${BLUE}🔐 Checking authentication...${NC}"
-if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q .; then
-    echo -e "${YELLOW}⚠️  Not authenticated. Please run: gcloud auth login${NC}"
-    exit 1
-fi
+# Authenticate with service account
+echo -e "${BLUE}🔐 Authenticating with service account...${NC}"
+gcloud auth activate-service-account --key-file="$TEMP_KEY_FILE"
 
 # Set the project
 echo -e "${BLUE}🔧 Setting project...${NC}"
