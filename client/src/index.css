@@ -113,6 +113,22 @@ main {
   margin: 0 !important;
 }
 
+/* Override any conflicting button styles in modals */
+.bg-white.rounded-lg.shadow-2xl .btn-vertical {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Ensure buttons don't shrink or grow in flex containers */
+.flex.flex-col.gap-3 .btn-vertical {
+  flex: none !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
 /* Force modal button containers to be vertical - more specific */
 .mt-8.pt-6.border-t.border-gray-200 .flex.flex-col.gap-3,
 .p-6.pt-4.border-t.border-gray-200 .flex.flex-col.gap-3 {
@@ -121,15 +137,16 @@ main {
   gap: 12px !important;
 }
 
-/* Force ALL flex containers with gap-3 to be vertical if they contain btn-vertical */
-.flex.gap-3:has(.btn-vertical) {
+/* Target specific modal button containers with higher specificity */
+.bg-white.rounded-lg.shadow-2xl .mt-8.pt-6.border-t.border-gray-200 .flex.flex-col.gap-3,
+.bg-white.rounded-lg.shadow-2xl .p-6.pt-4.border-t.border-gray-200 .flex.flex-col.gap-3 {
   display: flex !important;
   flex-direction: column !important;
   gap: 12px !important;
 }
 
-/* Nuclear option - force all modal button containers */
-div[class*="flex"][class*="gap-3"] {
+/* Force any div with both flex and gap-3 classes to be vertical */
+div.flex.gap-3 {
   display: flex !important;
   flex-direction: column !important;
   gap: 12px !important;
@@ -476,4 +493,19 @@ div[class*="flex"][class*="gap-3"] {
   .md\\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* FINAL OVERRIDE - Highest specificity for modal buttons */
+.bg-white.rounded-lg.shadow-2xl.relative.border.border-gray-200 .mt-8.pt-6.border-t.border-gray-200 .flex.flex-col.gap-3,
+.bg-white.rounded-lg.shadow-2xl.relative.border.border-gray-200 .p-6.pt-4.border-t.border-gray-200 .flex.flex-col.gap-3 {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.bg-white.rounded-lg.shadow-2xl.relative.border.border-gray-200 .btn-vertical {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  flex: none !important;
 }
