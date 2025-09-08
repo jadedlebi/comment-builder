@@ -999,7 +999,7 @@ const AdminDashboard = () => {
                   <textarea
                     value={editRulemaking.ncrc_comment_letter}
                     onChange={(e) => setEditRulemaking({...editRulemaking, ncrc_comment_letter: e.target.value})}
-                    rows={8}
+                    rows={4}
                     className="form-input"
                     placeholder="Paste the NCRC comment letter here. This will be used as context for AI-generated personalized comments."
                   />
