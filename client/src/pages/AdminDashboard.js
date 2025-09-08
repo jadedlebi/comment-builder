@@ -692,32 +692,30 @@ const AdminDashboard = () => {
                         ← Previous
                       </button>
                     )}
-                    <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      className="btn btn-outline w-full"
+                    >
+                      Cancel
+                    </button>
+                    {addModalStep < 2 ? (
                       <button
                         type="button"
-                        onClick={closeModal}
-                        className="btn btn-outline flex-1"
+                        onClick={nextStep}
+                        disabled={!isStep1Valid()}
+                        className="btn btn-primary w-full"
                       >
-                        Cancel
+                        Next →
                       </button>
-                      {addModalStep < 2 ? (
-                        <button
-                          type="button"
-                          onClick={nextStep}
-                          disabled={!isStep1Valid()}
-                          className="btn btn-primary flex-1"
-                        >
-                          Next →
-                        </button>
-                      ) : (
-                        <button
-                          type="submit"
-                          className="btn btn-primary flex-1"
-                        >
-                          Create Rulemaking
-                        </button>
-                      )}
-                    </div>
+                    ) : (
+                      <button
+                        type="submit"
+                        className="btn btn-primary w-full"
+                      >
+                        Create Rulemaking
+                      </button>
+                    )}
                   </div>
                 </div>
               </form>
