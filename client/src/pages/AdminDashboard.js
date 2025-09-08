@@ -694,7 +694,7 @@ const AdminDashboard = () => {
 
                 {/* Form Footer - Buttons */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                  <div className="flex gap-3">
+                  <div className="flex gap-3" style={{ display: 'flex', flexDirection: 'row', gap: '12px' }}>
                     {addModalStep > 1 && (
                       <button
                         type="button"
@@ -1014,7 +1014,7 @@ const AdminDashboard = () => {
 
             {/* Modal Footer */}
             <div className="p-6 pt-4 border-t border-gray-200">
-              <div className="flex gap-3">
+              <div className="flex gap-3" style={{ display: 'flex', flexDirection: 'row', gap: '12px' }}>
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
