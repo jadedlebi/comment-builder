@@ -151,7 +151,17 @@ const AdminDashboard = () => {
   const handleAddRulemaking = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/rulemakings', newRulemaking);
+      // Map frontend field names to API field names
+      const apiData = {
+        title: newRulemaking.title,
+        agency: newRulemaking.agency,
+        docket_id: newRulemaking.docket, // Map docket to docket_id
+        comment_deadline: newRulemaking.comment_deadline ? new Date(newRulemaking.comment_deadline).toISOString() : null,
+        description: newRulemaking.description,
+        ncrc_comment_letter: newRulemaking.ncrc_comment_letter
+      };
+      
+      const response = await api.post('/rulemakings', apiData);
       setRulemakings([...rulemakings, response.data.rulemaking]);
       setShowAddModal(false);
       setNewRulemaking({
@@ -545,6 +555,7 @@ const AdminDashboard = () => {
               zIndex: 10000, 
               width: '700px',
               maxHeight: '90vh',
+              minHeight: '400px',
               transform: isModalAnimating ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(-20px)',
               opacity: isModalAnimating ? 1 : 0,
               transition: 'all 300ms ease-out'
@@ -687,8 +698,7 @@ const AdminDashboard = () => {
                       <button
                         type="button"
                         onClick={prevStep}
-                        className="btn btn-outline w-full"
-                        style={{ display: 'block', width: '100%' }}
+                        className="btn btn-outline btn-vertical"
                       >
                         ← Previous
                       </button>
@@ -696,8 +706,7 @@ const AdminDashboard = () => {
                     <button
                       type="button"
                       onClick={closeModal}
-                      className="btn btn-outline w-full"
-                      style={{ display: 'block', width: '100%' }}
+                      className="btn btn-outline btn-vertical"
                     >
                       Cancel
                     </button>
@@ -706,16 +715,14 @@ const AdminDashboard = () => {
                         type="button"
                         onClick={nextStep}
                         disabled={!isStep1Valid()}
-                        className="btn btn-primary w-full"
-                        style={{ display: 'block', width: '100%' }}
+                        className="btn btn-primary btn-vertical"
                       >
                         Next →
                       </button>
                     ) : (
                       <button
                         type="submit"
-                        className="btn btn-primary w-full"
-                        style={{ display: 'block', width: '100%' }}
+                        className="btn btn-primary btn-vertical"
                       >
                         Create Rulemaking
                       </button>
@@ -888,7 +895,8 @@ const AdminDashboard = () => {
               position: 'relative', 
               zIndex: 10000, 
               width: '700px',
-              maxHeight: '90vh'
+              maxHeight: '90vh',
+              minHeight: '400px'
             }}
           >
             <button
@@ -924,9 +932,14 @@ const AdminDashboard = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <div className="mt-2">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6 pr-14">Edit Rulemaking</h3>
-              <form onSubmit={handleUpdateRulemaking} className="space-y-4">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">Edit Rulemaking</h3>
+            </div>
+
+            {/* Scrollable Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <form id="edit-rulemaking-form" onSubmit={handleUpdateRulemaking} className="space-y-4">
                 <div className="form-group">
                   <label className="form-label">Title *</label>
                   <input
@@ -993,26 +1006,27 @@ const AdminDashboard = () => {
                     This letter will be used as context for generating personalized comments. Users will not see this directly.
                   </p>
                 </div>
-                <div className="pt-6">
-                  <div className="space-y-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowEditModal(false)}
-                      className="btn btn-outline w-full"
-                      style={{ display: 'block', width: '100%' }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn btn-primary w-full"
-                      style={{ display: 'block', width: '100%' }}
-                    >
-                      Update Rulemaking
-                    </button>
-                  </div>
-                </div>
               </form>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 pt-4 border-t border-gray-200">
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="btn btn-outline btn-vertical"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="edit-rulemaking-form"
+                  className="btn btn-primary btn-vertical"
+                >
+                  Update Rulemaking
+                </button>
+              </div>
             </div>
           </div>
         </div>
