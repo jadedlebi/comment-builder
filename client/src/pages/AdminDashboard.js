@@ -108,13 +108,17 @@ const AdminDashboard = () => {
   };
 
   // Step navigation functions
-  const nextStep = () => {
+  const nextStep = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (addModalStep < 2) {
       setAddModalStep(addModalStep + 1);
     }
   };
 
-  const prevStep = () => {
+  const prevStep = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (addModalStep > 1) {
       setAddModalStep(addModalStep - 1);
     }
@@ -200,7 +204,18 @@ const AdminDashboard = () => {
   const handleUpdateRulemaking = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.put(`/rulemakings/${selectedRulemaking.id}`, editRulemaking);
+      // Map frontend field names to API field names
+      const apiData = {
+        title: editRulemaking.title,
+        agency: editRulemaking.agency,
+        docket_id: editRulemaking.docket, // Map docket to docket_id
+        comment_deadline: editRulemaking.comment_deadline ? new Date(editRulemaking.comment_deadline).toISOString() : null,
+        description: editRulemaking.description,
+        ncrc_comment_letter: editRulemaking.ncrc_comment_letter,
+        status: 'active' // Add required status field
+      };
+      
+      const response = await api.put(`/rulemakings/${selectedRulemaking.id}`, apiData);
       setRulemakings(rulemakings.map(r => r.id === selectedRulemaking.id ? response.data.rulemaking : r));
       setShowEditModal(false);
       setSelectedRulemaking(null);
@@ -695,7 +710,7 @@ const AdminDashboard = () => {
                     {addModalStep > 1 && (
                       <button
                         type="button"
-                        onClick={prevStep}
+                        onClick={(e) => prevStep(e)}
                         className="btn btn-outline flex-1"
                         style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                       >
@@ -713,7 +728,7 @@ const AdminDashboard = () => {
                     {addModalStep < 2 ? (
                       <button
                         type="button"
-                        onClick={nextStep}
+                        onClick={(e) => nextStep(e)}
                         disabled={!isStep1Valid()}
                         className="btn btn-primary flex-1"
                         style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
