@@ -119,6 +119,27 @@ main {
   margin-bottom: 12px !important;
 }
 
+/* Override any flex containers for vertical buttons */
+.btn.btn-vertical {
+  display: block !important;
+  width: 100% !important;
+  margin-bottom: 12px !important;
+}
+
+/* Ensure vertical stacking in space-y-3 containers */
+.space-y-3 {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.space-y-3 > * {
+  margin-bottom: 12px !important;
+}
+
+.space-y-3 > *:last-child {
+  margin-bottom: 0 !important;
+}
+
 /* Forms */
 .form-group {
   margin-bottom: 24px;
