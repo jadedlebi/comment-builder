@@ -242,9 +242,34 @@ const db = {
         original_data: JSON.stringify(existingRecord)
       };
       
-      // Insert into deleted_rulemakings table
-      await this.insert('deleted_rulemakings', [deletedRecord]);
-      console.log('✅ BigQuery soft delete - Moved to deleted_rulemakings table');
+      try {
+        // Try to insert into deleted_rulemakings table
+        await this.insert('deleted_rulemakings', [deletedRecord]);
+        console.log('✅ BigQuery soft delete - Moved to deleted_rulemakings table');
+      } catch (insertError) {
+        // If table doesn't exist, create it first
+        if (insertError.message && insertError.message.includes('not found')) {
+          console.log('🔧 deleted_rulemakings table not found, creating it...');
+          
+          // Create the deleted_rulemakings table
+          const tableSchema = [
+            { name: 'id', type: 'STRING', mode: 'REQUIRED' },
+            { name: 'deleted_at', type: 'TIMESTAMP', mode: 'REQUIRED' },
+            { name: 'deleted_by', type: 'STRING', mode: 'NULLABLE' },
+            { name: 'original_data', type: 'JSON', mode: 'NULLABLE' }
+          ];
+          
+          const table = bigquery.dataset(datasetId).table('deleted_rulemakings');
+          await table.get({ autoCreate: true, schema: tableSchema });
+          console.log('✅ Created deleted_rulemakings table');
+          
+          // Now try to insert again
+          await this.insert('deleted_rulemakings', [deletedRecord]);
+          console.log('✅ BigQuery soft delete - Moved to deleted_rulemakings table');
+        } else {
+          throw insertError;
+        }
+      }
       
       return { success: true, message: 'Record moved to deleted table' };
     } catch (error) {
