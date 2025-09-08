@@ -16,7 +16,8 @@ NC='\033[0m' # No Color
 PROJECT_ID="hdma1-242116"
 SERVICE_NAME="comment-builder"
 REGION="us-east1"
-IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
+REPOSITORY="comment-builder-repo"
+IMAGE_NAME="us-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME"
 
 # Load environment variables from .env file
 if [ -f ".env" ]; then
@@ -75,18 +76,26 @@ gcloud config set project $PROJECT_ID
 echo -e "${BLUE}🔧 Enabling required APIs...${NC}"
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable run.googleapis.com
-gcloud services enable containerregistry.googleapis.com
+gcloud services enable artifactregistry.googleapis.com
 
-# Configure Docker for GCR
-echo -e "${BLUE}🐳 Configuring Docker for Google Container Registry...${NC}"
-gcloud auth configure-docker
+# Create Artifacts Registry repository if it doesn't exist
+echo -e "${BLUE}🔧 Creating Artifacts Registry repository...${NC}"
+gcloud artifacts repositories create $REPOSITORY \
+    --repository-format=docker \
+    --location=$REGION \
+    --description="Docker repository for comment-builder" \
+    2>/dev/null || echo "Repository already exists"
+
+# Configure Docker for Artifacts Registry
+echo -e "${BLUE}🐳 Configuring Docker for Artifacts Registry...${NC}"
+gcloud auth configure-docker us-docker.pkg.dev
 
 # Build the Docker image
 echo -e "${BLUE}🏗️  Building Docker image...${NC}"
 docker build -t $IMAGE_NAME:latest .
 
-# Push the image to Google Container Registry
-echo -e "${BLUE}📤 Pushing image to Google Container Registry...${NC}"
+# Push the image to Artifacts Registry
+echo -e "${BLUE}📤 Pushing image to Artifacts Registry...${NC}"
 docker push $IMAGE_NAME:latest
 
 # Deploy to Cloud Run
@@ -102,7 +111,7 @@ gcloud run deploy $SERVICE_NAME \
     --min-instances 0 \
     --concurrency 80 \
     --timeout 300 \
-    --set-env-vars NODE_ENV=production,PORT=8080,CLAUDE_API_KEY="$CLAUDE_API_KEY",CLAUDE_MODEL="$CLAUDE_MODEL",BQ_TYPE="$BQ_TYPE",BQ_PROJECT_ID="$BQ_PROJECT_ID",BQ_PRIVATE_KEY_ID="$BQ_PRIVATE_KEY_ID",BQ_PRIVATE_KEY="$BQ_PRIVATE_KEY",BQ_CLIENT_EMAIL="$BQ_CLIENT_EMAIL",BQ_CLIENT_ID="$BQ_CLIENT_ID",BQ_AUTH_URI="$BQ_AUTH_URI",BQ_TOKEN_URI="$BQ_TOKEN_URI",BQ_AUTH_PROVIDER_X509_CERT_URL="$BQ_AUTH_PROVIDER_X509_CERT_URL",BQ_CLIENT_X509_CERT_URL="$BQ_CLIENT_X509_CERT_URL",BIGQUERY_DATASET="$BIGQUERY_DATASET",RECAPTCHA_SITE_KEY="$RECAPTCHA_SITE_KEY",RECAPTCHA_SECRET_KEY="$RECAPTCHA_SECRET_KEY",CLIENT_URL="$CLIENT_URL",RATE_LIMIT_WINDOW_MS="$RATE_LIMIT_WINDOW_MS",RATE_LIMIT_MAX_REQUESTS="$RATE_LIMIT_MAX_REQUESTS",REACT_APP_RECAPTCHA_SITE_KEY="$REACT_APP_RECAPTCHA_SITE_KEY"
+    --set-env-vars NODE_ENV=production,CLAUDE_API_KEY="$CLAUDE_API_KEY",CLAUDE_MODEL="$CLAUDE_MODEL",BQ_TYPE="$BQ_TYPE",BQ_PROJECT_ID="$BQ_PROJECT_ID",BQ_PRIVATE_KEY_ID="$BQ_PRIVATE_KEY_ID",BQ_PRIVATE_KEY="$BQ_PRIVATE_KEY",BQ_CLIENT_EMAIL="$BQ_CLIENT_EMAIL",BQ_CLIENT_ID="$BQ_CLIENT_ID",BQ_AUTH_URI="$BQ_AUTH_URI",BQ_TOKEN_URI="$BQ_TOKEN_URI",BQ_AUTH_PROVIDER_X509_CERT_URL="$BQ_AUTH_PROVIDER_X509_CERT_URL",BQ_CLIENT_X509_CERT_URL="$BQ_CLIENT_X509_CERT_URL",BIGQUERY_DATASET="$BIGQUERY_DATASET",RECAPTCHA_SITE_KEY="$RECAPTCHA_SITE_KEY",RECAPTCHA_SECRET_KEY="$RECAPTCHA_SECRET_KEY",CLIENT_URL="$CLIENT_URL",RATE_LIMIT_WINDOW_MS="$RATE_LIMIT_WINDOW_MS",RATE_LIMIT_MAX_REQUESTS="$RATE_LIMIT_MAX_REQUESTS",REACT_APP_RECAPTCHA_SITE_KEY="$REACT_APP_RECAPTCHA_SITE_KEY"
 
 # Get the service URL
 SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --platform managed --region $REGION --format 'value(status.url)')

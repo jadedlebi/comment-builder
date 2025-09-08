@@ -386,15 +386,6 @@ const CommentGenerator = () => {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">reCAPTCHA Verification *</label>
-              <div className="alert alert-info">
-                <p className="text-sm">
-                  <strong>reCAPTCHA v3:</strong> This site is protected by reCAPTCHA v3. 
-                  Verification happens automatically when you submit the form.
-                </p>
-              </div>
-            </div>
           </div>
 
           <div className="flex space-x-4 mt-8">
