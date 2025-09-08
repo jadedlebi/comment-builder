@@ -538,3 +538,18 @@ div.flex.gap-3 {
   flex: 1 !important;
   margin: 0 !important;
 }
+
+/* BUTTON ROW CLASS - Clean approach without conflicts */
+.button-row {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+.button-row .btn {
+  display: inline-flex !important;
+  width: auto !important;
+  flex: 1 !important;
+  margin: 0 !important;
+}
