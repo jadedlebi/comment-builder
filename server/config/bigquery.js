@@ -1,31 +1,10 @@
 const { BigQuery } = require('@google-cloud/bigquery');
 
-// Initialize BigQuery client with service account credentials
-let bigquery;
-try {
-  // Try using the service account credentials first
-  bigquery = new BigQuery({
-    projectId: process.env.BQ_PROJECT_ID,
-    credentials: {
-      type: process.env.BQ_TYPE,
-      project_id: process.env.BQ_PROJECT_ID,
-      private_key_id: process.env.BQ_PRIVATE_KEY_ID,
-      private_key: process.env.BQ_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      client_email: process.env.BQ_CLIENT_EMAIL,
-      client_id: process.env.BQ_CLIENT_ID,
-      auth_uri: process.env.BQ_AUTH_URI,
-      token_uri: process.env.BQ_TOKEN_URI,
-      auth_provider_x509_cert_url: process.env.BQ_AUTH_PROVIDER_X509_CERT_URL,
-      client_x509_cert_url: process.env.BQ_CLIENT_X509_CERT_URL
-    }
-  });
-} catch (error) {
-  console.warn('Failed to initialize BigQuery with service account credentials, falling back to Application Default Credentials:', error.message);
-  // Fallback to Application Default Credentials
-  bigquery = new BigQuery({
-    projectId: process.env.BQ_PROJECT_ID
-  });
-}
+// Initialize BigQuery client
+// Use Application Default Credentials for Cloud Run
+const bigquery = new BigQuery({
+  projectId: process.env.BQ_PROJECT_ID
+});
 
 // Function to get dataset ID dynamically
 function getDatasetId() {
