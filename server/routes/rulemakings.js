@@ -63,8 +63,11 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/rulemakings - Create new rulemaking (admin only)
 router.post('/', validateRulemaking, async (req, res, next) => {
   try {
+    console.log('🔍 POST /api/rulemakings - Request body:', JSON.stringify(req.body, null, 2));
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ Validation errors:', errors.array());
       return res.status(400).json({ 
         error: 'Validation failed', 
         details: errors.array() 
@@ -85,6 +88,20 @@ router.post('/', validateRulemaking, async (req, res, next) => {
       ncrc_comment_letter
     } = req.body;
 
+    console.log('🔍 Parsed data:', {
+      agency,
+      title,
+      description,
+      docket_id,
+      federal_register_url,
+      comment_deadline,
+      status,
+      context_documents,
+      legal_analysis,
+      opposition_points,
+      ncrc_comment_letter
+    });
+
     const rulemaking = {
       id: uuidv4(),
       agency,
@@ -102,9 +119,14 @@ router.post('/', validateRulemaking, async (req, res, next) => {
       updated_at: new Date().toISOString()
     };
 
+    console.log('🔍 Rulemaking object to insert:', JSON.stringify(rulemaking, null, 2));
+
     await db.insert('rulemakings', [rulemaking]);
+    console.log('✅ Successfully inserted rulemaking');
     res.status(201).json({ rulemaking });
   } catch (error) {
+    console.error('❌ Error in POST /api/rulemakings:', error);
+    console.error('❌ Error stack:', error.stack);
     next(error);
   }
 });

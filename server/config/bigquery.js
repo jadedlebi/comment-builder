@@ -99,10 +99,28 @@ async function initializeDatabase() {
 const db = {
   // Insert a new record
   async insert(tableName, data) {
-    const datasetId = getDatasetId();
-    const table = bigquery.dataset(datasetId).table(tableName);
-    const [job] = await table.insert(data);
-    return job;
+    try {
+      console.log('🔍 BigQuery insert - Table:', tableName);
+      console.log('🔍 BigQuery insert - Data:', JSON.stringify(data, null, 2));
+      
+      const datasetId = getDatasetId();
+      console.log('🔍 BigQuery insert - Dataset ID:', datasetId);
+      
+      const table = bigquery.dataset(datasetId).table(tableName);
+      console.log('🔍 BigQuery insert - Table reference created');
+      
+      const [job] = await table.insert(data);
+      console.log('✅ BigQuery insert - Job completed:', job);
+      return job;
+    } catch (error) {
+      console.error('❌ BigQuery insert error:', error);
+      console.error('❌ BigQuery insert error details:', {
+        code: error.code,
+        message: error.message,
+        errors: error.errors
+      });
+      throw error;
+    }
   },
 
   // Query data
