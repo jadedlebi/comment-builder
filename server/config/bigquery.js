@@ -214,21 +214,27 @@ const db = {
     return await this.query(sql, { rulemakingId, startDate, endDate });
   },
 
-  // Delete a record
+  // Delete a record (soft delete by updating status to 'deleted')
   async delete(tableName, id) {
     const datasetId = getDatasetId();
-    const sql = `DELETE FROM \`${datasetId}.${tableName}\` WHERE id = @id`;
     
-    console.log('🔍 BigQuery delete - SQL:', sql);
-    console.log('🔍 BigQuery delete - ID:', id);
+    // Instead of hard delete, we'll soft delete by updating status
+    const sql = `
+      UPDATE \`${datasetId}.${tableName}\` 
+      SET status = 'deleted', updated_at = CURRENT_TIMESTAMP()
+      WHERE id = @id
+    `;
+    
+    console.log('🔍 BigQuery soft delete - SQL:', sql);
+    console.log('🔍 BigQuery soft delete - ID:', id);
     
     try {
       const result = await this.query(sql, { id });
-      console.log('✅ BigQuery delete - Result:', result);
+      console.log('✅ BigQuery soft delete - Result:', result);
       return result;
     } catch (error) {
-      console.error('❌ BigQuery delete error:', error);
-      console.error('❌ BigQuery delete error details:', {
+      console.error('❌ BigQuery soft delete error:', error);
+      console.error('❌ BigQuery soft delete error details:', {
         code: error.code,
         message: error.message,
         errors: error.errors

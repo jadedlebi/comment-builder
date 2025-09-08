@@ -151,7 +151,10 @@ const AdminDashboard = () => {
         api.get('/submissions/stats')
       ]);
 
-      setRulemakings(rulemakingsRes.data.rulemakings || []);
+      // Filter out deleted rulemakings
+      const allRulemakings = rulemakingsRes.data.rulemakings || [];
+      const activeRulemakings = allRulemakings.filter(r => r.status !== 'deleted');
+      setRulemakings(activeRulemakings);
       setSubmissions(submissionsRes.data.submissions || []);
       setStats(statsRes.data.stats || {});
     } catch (err) {
@@ -1186,21 +1189,23 @@ const AdminDashboard = () => {
               <div className="mb-6">
                 <p className="text-gray-700">
                   Are you sure you want to delete <strong>"{selectedRulemaking.title}"</strong>? 
-                  This will permanently remove the rulemaking and all associated data.
+                  This will mark the rulemaking as deleted and remove it from the active list.
                 </p>
               </div>
-              <div className="flex justify-end space-x-3">
+              <div className="button-row" style={{ display: 'flex', flexDirection: 'row', gap: '12px', width: '100%' }}>
                 <button
                   type="button"
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="btn btn-outline flex-1"
+                  style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={confirmDeleteRulemaking}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  className="btn btn-primary flex-1 bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700"
+                  style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                 >
                   Delete Rulemaking
                 </button>
