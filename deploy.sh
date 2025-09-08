@@ -58,6 +58,9 @@ if ! command -v gcloud &> /dev/null; then
     exit 1
 fi
 
+# Fix gcloud Python path issue
+export CLOUDSDK_PYTHON=/usr/bin/python3
+
 # Set up service account authentication using environment variables
 echo -e "${BLUE}🔐 Setting up service account authentication...${NC}"
 if [ -z "$BQ_CLIENT_EMAIL" ] || [ -z "$BQ_PRIVATE_KEY" ]; then
