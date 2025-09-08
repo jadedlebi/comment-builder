@@ -1006,9 +1006,6 @@ const AdminDashboard = () => {
                     className="form-input"
                     placeholder="Paste the NCRC comment letter here. This will be used as context for AI-generated personalized comments."
                   />
-                  <p className="text-sm text-gray-500 mt-1">
-                    This letter will be used as context for generating personalized comments. Users will not see this directly.
-                  </p>
                 </div>
               </form>
             </div>
