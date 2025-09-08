@@ -522,3 +522,19 @@ div.flex.gap-3 {
   width: auto !important;
   flex: 1 !important;
 }
+
+/* ULTRA SPECIFIC OVERRIDE - Target exact modal structure */
+.bg-white.rounded-lg.shadow-2xl.relative.border.border-gray-200 .mt-8.pt-6.border-t.border-gray-200 .flex.gap-3,
+.bg-white.rounded-lg.shadow-2xl.relative.border.border-gray-200 .p-6.pt-4.border-t.border-gray-200 .flex.gap-3 {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 12px !important;
+}
+
+.bg-white.rounded-lg.shadow-2xl.relative.border.border-gray-200 .mt-8.pt-6.border-t.border-gray-200 .flex.gap-3 .btn,
+.bg-white.rounded-lg.shadow-2xl.relative.border.border-gray-200 .p-6.pt-4.border-t.border-gray-200 .flex.gap-3 .btn {
+  display: inline-flex !important;
+  width: auto !important;
+  flex: 1 !important;
+  margin: 0 !important;
+}

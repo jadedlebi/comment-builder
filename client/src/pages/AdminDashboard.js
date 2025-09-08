@@ -700,6 +700,7 @@ const AdminDashboard = () => {
                         type="button"
                         onClick={prevStep}
                         className="btn btn-outline flex-1"
+                        style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                       >
                         ← Previous
                       </button>
@@ -708,6 +709,7 @@ const AdminDashboard = () => {
                       type="button"
                       onClick={closeModal}
                       className="btn btn-outline flex-1"
+                      style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                     >
                       Cancel
                     </button>
@@ -717,6 +719,7 @@ const AdminDashboard = () => {
                         onClick={nextStep}
                         disabled={!isStep1Valid()}
                         className="btn btn-primary flex-1"
+                        style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                       >
                         Next →
                       </button>
@@ -724,6 +727,7 @@ const AdminDashboard = () => {
                       <button
                         type="submit"
                         className="btn btn-primary flex-1"
+                        style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                       >
                         Create Rulemaking
                       </button>
@@ -1019,6 +1023,7 @@ const AdminDashboard = () => {
                   type="button"
                   onClick={() => setShowEditModal(false)}
                   className="btn btn-outline flex-1"
+                  style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                 >
                   Cancel
                 </button>
@@ -1026,6 +1031,7 @@ const AdminDashboard = () => {
                   type="submit"
                   form="edit-rulemaking-form"
                   className="btn btn-primary flex-1"
+                  style={{ display: 'inline-flex', width: 'auto', flex: '1' }}
                 >
                   Update Rulemaking
                 </button>
