@@ -565,7 +565,7 @@ const AdminDashboard = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 pb-1 border-b border-gray-200">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Add New Rulemaking</h3>
+                <h3 className="text-xl font-semibold text-gray-900 my-0">Add New Rulemaking</h3>
                 <p className="text-sm text-gray-500 mt-1">Step {addModalStep} of 2</p>
               </div>
               <button
@@ -935,7 +935,7 @@ const AdminDashboard = () => {
             </button>
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 pb-1 border-b border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900">Edit Rulemaking</h3>
+              <h3 className="text-xl font-semibold text-gray-900 my-0">Edit Rulemaking</h3>
             </div>
 
             {/* Scrollable Modal Body */}
@@ -952,37 +952,39 @@ const AdminDashboard = () => {
                     placeholder="Enter rulemaking title"
                   />
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Agency *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editRulemaking.agency}
-                    onChange={(e) => setEditRulemaking({...editRulemaking, agency: e.target.value})}
-                    className="form-input"
-                    placeholder="e.g., CFPB"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Docket Number *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editRulemaking.docket}
-                    onChange={(e) => setEditRulemaking({...editRulemaking, docket: e.target.value})}
-                    className="form-input"
-                    placeholder="e.g., CFPB-2025-0018"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Comment Deadline *</label>
-                  <input
-                    type="date"
-                    required
-                    value={editRulemaking.comment_deadline}
-                    onChange={(e) => setEditRulemaking({...editRulemaking, comment_deadline: e.target.value})}
-                    className="form-input"
-                  />
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="form-group">
+                    <label className="form-label">Agency *</label>
+                    <input
+                      type="text"
+                      required
+                      value={editRulemaking.agency}
+                      onChange={(e) => setEditRulemaking({...editRulemaking, agency: e.target.value})}
+                      className="form-input"
+                      placeholder="e.g., CFPB"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Docket Number *</label>
+                    <input
+                      type="text"
+                      required
+                      value={editRulemaking.docket}
+                      onChange={(e) => setEditRulemaking({...editRulemaking, docket: e.target.value})}
+                      className="form-input"
+                      placeholder="e.g., CFPB-2025-0018"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Comment Deadline *</label>
+                    <input
+                      type="date"
+                      required
+                      value={editRulemaking.comment_deadline}
+                      onChange={(e) => setEditRulemaking({...editRulemaking, comment_deadline: e.target.value})}
+                      className="form-input"
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Description</label>
