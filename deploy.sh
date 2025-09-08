@@ -17,7 +17,7 @@ PROJECT_ID="hdma1-242116"
 SERVICE_NAME="comment-builder"
 REGION="us-east1"
 REPOSITORY="comment-builder-repo"
-IMAGE_NAME="us-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME"
+IMAGE_NAME="us-east1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME"
 
 # Load environment variables from .env file
 if [ -f ".env" ]; then
@@ -88,11 +88,11 @@ gcloud artifacts repositories create $REPOSITORY \
 
 # Configure Docker for Artifacts Registry
 echo -e "${BLUE}🐳 Configuring Docker for Artifacts Registry...${NC}"
-gcloud auth configure-docker us-docker.pkg.dev
+gcloud auth configure-docker us-east1-docker.pkg.dev
 
-# Build the Docker image
+# Build the Docker image for Linux AMD64 platform
 echo -e "${BLUE}🏗️  Building Docker image...${NC}"
-docker build -t $IMAGE_NAME:latest .
+docker build --platform linux/amd64 -t $IMAGE_NAME:latest .
 
 # Push the image to Artifacts Registry
 echo -e "${BLUE}📤 Pushing image to Artifacts Registry...${NC}"

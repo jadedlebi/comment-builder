@@ -12,8 +12,18 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [isModalAnimating, setIsModalAnimating] = useState(false);
+  const [selectedRulemaking, setSelectedRulemaking] = useState(null);
   const [newRulemaking, setNewRulemaking] = useState({
+    title: '',
+    agency: '',
+    docket: '',
+    comment_deadline: '',
+    description: ''
+  });
+  const [editRulemaking, setEditRulemaking] = useState({
     title: '',
     agency: '',
     docket: '',
@@ -129,6 +139,43 @@ const AdminDashboard = () => {
     } catch (err) {
       setError('Failed to create rulemaking');
       console.error('Error creating rulemaking:', err);
+    }
+  };
+
+  const handleViewRulemaking = (rulemaking) => {
+    setSelectedRulemaking(rulemaking);
+    setShowViewModal(true);
+  };
+
+  const handleEditRulemaking = (rulemaking) => {
+    setSelectedRulemaking(rulemaking);
+    setEditRulemaking({
+      title: rulemaking.title,
+      agency: rulemaking.agency,
+      docket: rulemaking.docket_id,
+      comment_deadline: getDateString(rulemaking.comment_deadline),
+      description: rulemaking.description || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateRulemaking = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.put(`/rulemakings/${selectedRulemaking.id}`, editRulemaking);
+      setRulemakings(rulemakings.map(r => r.id === selectedRulemaking.id ? response.data.rulemaking : r));
+      setShowEditModal(false);
+      setSelectedRulemaking(null);
+      setEditRulemaking({
+        title: '',
+        agency: '',
+        docket: '',
+        comment_deadline: '',
+        description: ''
+      });
+    } catch (err) {
+      setError('Failed to update rulemaking');
+      console.error('Error updating rulemaking:', err);
     }
   };
 
@@ -321,10 +368,18 @@ const AdminDashboard = () => {
                       </span>
                     </div>
                     <div className="flex space-x-2 ml-4">
-                      <button className="btn btn-outline">
+                      <button 
+                        className="btn btn-outline"
+                        onClick={() => handleViewRulemaking(rulemaking)}
+                        title="View details"
+                      >
                         <Eye size={16} />
                       </button>
-                      <button className="btn btn-outline">
+                      <button 
+                        className="btn btn-outline"
+                        onClick={() => handleEditRulemaking(rulemaking)}
+                        title="Edit rulemaking"
+                      >
                         <Edit size={16} />
                       </button>
                     </div>
@@ -568,6 +623,280 @@ const AdminDashboard = () => {
                     className="btn btn-primary"
                   >
                     Create Rulemaking
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Rulemaking Modal */}
+      {showViewModal && selectedRulemaking && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[9999]"
+          onClick={() => setShowViewModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            overflow: 'hidden',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            transition: 'background-color 300ms ease-out'
+          }}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-2xl p-8 relative border border-gray-200"
+            onClick={(e) => e.stopPropagation()}
+            style={{ 
+              position: 'relative', 
+              zIndex: 10000, 
+              width: '700px',
+              maxHeight: '80vh',
+              overflowY: 'auto'
+            }}
+          >
+            <button
+              onClick={() => setShowViewModal(false)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#9ca3af',
+                backgroundColor: 'transparent',
+                border: 'none',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                zIndex: 10,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = '#374151';
+                e.target.style.backgroundColor = '#f3f4f6';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = '#9ca3af';
+                e.target.style.backgroundColor = 'transparent';
+              }}
+              aria-label="Close modal"
+            >
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="mt-2">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6 pr-14">Rulemaking Details</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <p className="text-gray-900">{selectedRulemaking.title}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Agency</label>
+                    <p className="text-gray-900">{selectedRulemaking.agency}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Docket ID</label>
+                    <p className="text-gray-900">{selectedRulemaking.docket_id}</p>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Comment Deadline</label>
+                  <p className="text-gray-900">{formatDate(selectedRulemaking.comment_deadline, 'MMMM dd, yyyy')}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    selectedRulemaking.status === 'active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : selectedRulemaking.status === 'expired'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {selectedRulemaking.status}
+                  </span>
+                </div>
+                {selectedRulemaking.description && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <p className="text-gray-900 whitespace-pre-wrap">{selectedRulemaking.description}</p>
+                  </div>
+                )}
+                {selectedRulemaking.federal_register_url && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Federal Register URL</label>
+                    <a 
+                      href={selectedRulemaking.federal_register_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      {selectedRulemaking.federal_register_url}
+                    </a>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+                  <div>
+                    <label className="block font-medium text-gray-700 mb-1">Created</label>
+                    <p>{formatDate(selectedRulemaking.created_at)}</p>
+                  </div>
+                  <div>
+                    <label className="block font-medium text-gray-700 mb-1">Last Updated</label>
+                    <p>{formatDate(selectedRulemaking.updated_at)}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end pt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowViewModal(false)}
+                  className="btn btn-primary"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Rulemaking Modal */}
+      {showEditModal && selectedRulemaking && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[9999]"
+          onClick={() => setShowEditModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            overflow: 'hidden',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            transition: 'background-color 300ms ease-out'
+          }}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-2xl p-8 relative border border-gray-200"
+            onClick={(e) => e.stopPropagation()}
+            style={{ 
+              position: 'relative', 
+              zIndex: 10000, 
+              width: '700px',
+              maxHeight: '80vh',
+              overflowY: 'auto'
+            }}
+          >
+            <button
+              onClick={() => setShowEditModal(false)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#9ca3af',
+                backgroundColor: 'transparent',
+                border: 'none',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                zIndex: 10,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = '#374151';
+                e.target.style.backgroundColor = '#f3f4f6';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = '#9ca3af';
+                e.target.style.backgroundColor = 'transparent';
+              }}
+              aria-label="Close modal"
+            >
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="mt-2">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6 pr-14">Edit Rulemaking</h3>
+              <form onSubmit={handleUpdateRulemaking} className="space-y-4">
+                <div className="form-group">
+                  <label className="form-label">Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editRulemaking.title}
+                    onChange={(e) => setEditRulemaking({...editRulemaking, title: e.target.value})}
+                    className="form-input"
+                    placeholder="Enter rulemaking title"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Agency *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editRulemaking.agency}
+                    onChange={(e) => setEditRulemaking({...editRulemaking, agency: e.target.value})}
+                    className="form-input"
+                    placeholder="e.g., CFPB"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Docket Number *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editRulemaking.docket}
+                    onChange={(e) => setEditRulemaking({...editRulemaking, docket: e.target.value})}
+                    className="form-input"
+                    placeholder="e.g., CFPB-2025-0018"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Comment Deadline *</label>
+                  <input
+                    type="date"
+                    required
+                    value={editRulemaking.comment_deadline}
+                    onChange={(e) => setEditRulemaking({...editRulemaking, comment_deadline: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    value={editRulemaking.description}
+                    onChange={(e) => setEditRulemaking({...editRulemaking, description: e.target.value})}
+                    rows={3}
+                    className="form-input"
+                    placeholder="Enter rulemaking description"
+                  />
+                </div>
+                <div className="flex justify-end pt-6" style={{ gap: '16px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="btn btn-outline"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                  >
+                    Update Rulemaking
                   </button>
                 </div>
               </form>
