@@ -109,6 +109,14 @@ main {
 .btn-vertical {
   display: block !important;
   width: 100% !important;
+  margin-bottom: 12px !important;
+}
+
+/* Force vertical layout for button containers */
+.space-y-3 > .btn-vertical {
+  display: block !important;
+  width: 100% !important;
+  margin-bottom: 12px !important;
 }
 
 /* Forms */

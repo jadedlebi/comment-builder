@@ -158,7 +158,8 @@ const AdminDashboard = () => {
         docket_id: newRulemaking.docket, // Map docket to docket_id
         comment_deadline: newRulemaking.comment_deadline ? new Date(newRulemaking.comment_deadline).toISOString() : null,
         description: newRulemaking.description,
-        ncrc_comment_letter: newRulemaking.ncrc_comment_letter
+        ncrc_comment_letter: newRulemaking.ncrc_comment_letter,
+        status: 'active' // Add required status field
       };
       
       const response = await api.post('/rulemakings', apiData);
