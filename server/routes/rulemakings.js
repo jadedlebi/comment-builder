@@ -20,10 +20,12 @@ router.get('/', async (req, res, next) => {
     const datasetId = getDatasetId();
     const now = new Date().toISOString().split('T')[0];
     const sql = `
-      SELECT * FROM \`${datasetId}.rulemakings\` 
-      WHERE status = 'active' 
-      AND comment_deadline >= @now
-      ORDER BY comment_deadline ASC
+      SELECT r.* FROM \`${datasetId}.rulemakings\` r
+      LEFT JOIN \`${datasetId}.deleted_rulemakings\` d ON r.id = d.id
+      WHERE r.status = 'active' 
+      AND r.comment_deadline >= @now
+      AND d.id IS NULL
+      ORDER BY r.comment_deadline ASC
     `;
     const rulemakings = await db.query(sql, { now });
     res.json({ rulemakings });
@@ -52,7 +54,15 @@ router.get('/admin', async (req, res, next) => {
 // GET /api/rulemakings/:id - Get specific rulemaking
 router.get('/:id', async (req, res, next) => {
   try {
-    const rulemaking = await db.getById('rulemakings', req.params.id);
+    const datasetId = getDatasetId();
+    const sql = `
+      SELECT r.* FROM \`${datasetId}.rulemakings\` r
+      LEFT JOIN \`${datasetId}.deleted_rulemakings\` d ON r.id = d.id
+      WHERE r.id = @id AND d.id IS NULL
+    `;
+    const rows = await db.query(sql, { id: req.params.id });
+    const rulemaking = rows[0] || null;
+    
     if (!rulemaking) {
       return res.status(404).json({ error: 'Rulemaking not found' });
     }
