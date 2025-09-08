@@ -610,12 +610,12 @@ const AdminDashboard = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-4">
               <form id="add-rulemaking-form" onSubmit={handleAddRulemaking} className="h-full">
                 <div className="flex-1 transition-all duration-300 ease-in-out">
                   {addModalStep === 1 && (
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h4>
+                    <div className="space-y-3">
+                      <h4 className="text-lg font-medium text-gray-900 mb-2">Basic Information</h4>
                       <div className="form-group">
                         <label className="form-label">Title *</label>
                         <input
@@ -663,8 +663,8 @@ const AdminDashboard = () => {
                   )}
 
                   {addModalStep === 2 && (
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Details</h4>
+                    <div className="space-y-3">
+                      <h4 className="text-lg font-medium text-gray-900 mb-2">Additional Details</h4>
                       <div className="form-group">
                         <label className="form-label">Description</label>
                         <textarea
