@@ -37,8 +37,10 @@ router.get('/admin', async (req, res, next) => {
   try {
     const datasetId = getDatasetId();
     const sql = `
-      SELECT * FROM \`${datasetId}.rulemakings\` 
-      ORDER BY comment_deadline ASC
+      SELECT r.* FROM \`${datasetId}.rulemakings\` r
+      LEFT JOIN \`${datasetId}.deleted_rulemakings\` d ON r.id = d.id
+      WHERE d.id IS NULL
+      ORDER BY r.comment_deadline ASC
     `;
     const rulemakings = await db.query(sql);
     res.json({ rulemakings });
@@ -203,11 +205,14 @@ router.delete('/:id', async (req, res, next) => {
 
     console.log('🔍 Deleting rulemaking:', existingRulemaking.title);
     
-    // Delete the rulemaking
-    await db.delete('rulemakings', req.params.id);
-    console.log('✅ Successfully deleted rulemaking');
+    // Move to deleted_rulemakings table
+    await db.delete('rulemakings', req.params.id, req.user?.email || 'admin');
+    console.log('✅ Successfully moved rulemaking to deleted table');
     
-    res.json({ message: 'Rulemaking deleted successfully' });
+    res.json({ 
+      message: 'Rulemaking deleted successfully',
+      deletedId: req.params.id
+    });
   } catch (error) {
     console.error('❌ Error in DELETE /api/rulemakings:', error);
     console.error('❌ Error stack:', error.stack);

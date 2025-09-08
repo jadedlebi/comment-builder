@@ -151,10 +151,7 @@ const AdminDashboard = () => {
         api.get('/submissions/stats')
       ]);
 
-      // Filter out deleted rulemakings
-      const allRulemakings = rulemakingsRes.data.rulemakings || [];
-      const activeRulemakings = allRulemakings.filter(r => r.status !== 'deleted');
-      setRulemakings(activeRulemakings);
+      setRulemakings(rulemakingsRes.data.rulemakings || []);
       setSubmissions(submissionsRes.data.submissions || []);
       setStats(statsRes.data.stats || {});
     } catch (err) {
@@ -258,6 +255,8 @@ const AdminDashboard = () => {
   const confirmDeleteRulemaking = async () => {
     try {
       await api.delete(`/rulemakings/${selectedRulemaking.id}`);
+      
+      // Remove from current list and refresh data
       setRulemakings(rulemakings.filter(r => r.id !== selectedRulemaking.id));
       setShowDeleteModal(false);
       setSelectedRulemaking(null);

@@ -67,6 +67,13 @@ const tableSchemas = {
     { name: 'states_represented', type: 'INTEGER', mode: 'REQUIRED' },
     { name: 'avg_comment_length', type: 'FLOAT', mode: 'REQUIRED' },
     { name: 'created_at', type: 'TIMESTAMP', mode: 'REQUIRED' }
+  ],
+  
+  deleted_rulemakings: [
+    { name: 'id', type: 'STRING', mode: 'REQUIRED' },
+    { name: 'deleted_at', type: 'TIMESTAMP', mode: 'REQUIRED' },
+    { name: 'deleted_by', type: 'STRING', mode: 'NULLABLE' },
+    { name: 'original_data', type: 'JSON', mode: 'NULLABLE' } // Store original rulemaking data
   ]
 };
 
@@ -214,24 +221,32 @@ const db = {
     return await this.query(sql, { rulemakingId, startDate, endDate });
   },
 
-  // Delete a record (soft delete by updating status to 'deleted')
-  async delete(tableName, id) {
+  // Delete a record (move to deleted_rulemakings table)
+  async delete(tableName, id, deletedBy = null) {
     const datasetId = getDatasetId();
     
-    // Instead of hard delete, we'll soft delete by updating status
-    const sql = `
-      UPDATE \`${datasetId}.${tableName}\` 
-      SET status = 'deleted', updated_at = CURRENT_TIMESTAMP()
-      WHERE id = @id
-    `;
-    
-    console.log('🔍 BigQuery soft delete - SQL:', sql);
-    console.log('🔍 BigQuery soft delete - ID:', id);
-    
     try {
-      const result = await this.query(sql, { id });
-      console.log('✅ BigQuery soft delete - Result:', result);
-      return result;
+      // First, get the record to make sure it exists
+      const existingRecord = await this.getById(tableName, id);
+      if (!existingRecord) {
+        throw new Error('Record not found');
+      }
+      
+      console.log('🔍 BigQuery soft delete - Found record:', existingRecord.title);
+      
+      // Create deleted record entry
+      const deletedRecord = {
+        id: existingRecord.id,
+        deleted_at: new Date().toISOString(),
+        deleted_by: deletedBy,
+        original_data: JSON.stringify(existingRecord)
+      };
+      
+      // Insert into deleted_rulemakings table
+      await this.insert('deleted_rulemakings', [deletedRecord]);
+      console.log('✅ BigQuery soft delete - Moved to deleted_rulemakings table');
+      
+      return { success: true, message: 'Record moved to deleted table' };
     } catch (error) {
       console.error('❌ BigQuery soft delete error:', error);
       console.error('❌ BigQuery soft delete error details:', {
