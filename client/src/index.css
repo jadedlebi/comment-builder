@@ -106,31 +106,16 @@ main {
   box-shadow: none;
 }
 
-.btn-vertical {
-  display: block !important;
-  width: 100% !important;
-  margin-bottom: 12px !important;
-}
-
-/* Force vertical layout for button containers */
-.space-y-3 > .btn-vertical {
-  display: block !important;
-  width: 100% !important;
-  margin-bottom: 12px !important;
-}
-
-/* Override any flex containers for vertical buttons */
-.btn.btn-vertical {
-  display: block !important;
-  width: 100% !important;
-  margin-bottom: 12px !important;
-}
-
-/* Ensure btn-vertical buttons are properly stacked */
+/* Consolidated btn-vertical class - highest specificity */
 .btn-vertical {
   display: block !important;
   width: 100% !important;
   margin: 0 !important;
+}
+
+/* Ensure gap-3 works properly */
+.gap-3 {
+  gap: 12px !important;
 }
 
 /* Forms */
