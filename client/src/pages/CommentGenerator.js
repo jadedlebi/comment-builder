@@ -75,21 +75,28 @@ const CommentGenerator = () => {
 
   const executeRecaptcha = () => {
     return new Promise((resolve, reject) => {
-      if (window.grecaptcha && window.grecaptcha.ready) {
-        window.grecaptcha.ready(() => {
-          window.grecaptcha.execute(process.env.REACT_APP_RECAPTCHA_SITE_KEY, { action: 'submit' })
-            .then((token) => {
-              setRecaptchaToken(token);
-              resolve(token);
-            })
-            .catch((error) => {
-              console.error('reCAPTCHA error:', error);
-              reject(error);
-            });
-        });
-      } else {
-        reject(new Error('reCAPTCHA not loaded'));
-      }
+      // Wait for reCAPTCHA to be available
+      const checkRecaptcha = () => {
+        if (window.grecaptcha && window.grecaptcha.ready) {
+          window.grecaptcha.ready(() => {
+            window.grecaptcha.execute(process.env.REACT_APP_RECAPTCHA_SITE_KEY, { action: 'submit' })
+              .then((token) => {
+                console.log('reCAPTCHA token generated:', token);
+                setRecaptchaToken(token);
+                resolve(token);
+              })
+              .catch((error) => {
+                console.error('reCAPTCHA error:', error);
+                reject(error);
+              });
+          });
+        } else {
+          // Wait a bit and try again
+          setTimeout(checkRecaptcha, 100);
+        }
+      };
+      
+      checkRecaptcha();
     });
   };
 
@@ -107,12 +114,23 @@ const CommentGenerator = () => {
       if (process.env.REACT_APP_RECAPTCHA_SITE_KEY) {
         try {
           token = await executeRecaptcha();
+          if (!token) {
+            throw new Error('reCAPTCHA token is empty');
+          }
         } catch (error) {
           console.error('reCAPTCHA execution failed:', error);
           alert('reCAPTCHA verification failed. Please try again.');
           return;
         }
+      } else {
+        console.warn('reCAPTCHA site key not configured');
       }
+
+      console.log('Sending request with data:', {
+        ...formData,
+        rulemaking_id: rulemakingId,
+        recaptcha_token: token
+      });
 
       const response = await api.post('/comments/generate', {
         ...formData,
@@ -125,7 +143,12 @@ const CommentGenerator = () => {
       setStep(3);
     } catch (err) {
       console.error('Error generating comment:', err);
-      alert('Failed to generate comment. Please try again.');
+      if (err.response && err.response.data) {
+        console.error('Server error details:', err.response.data);
+        alert(`Failed to generate comment: ${err.response.data.error || 'Unknown error'}`);
+      } else {
+        alert('Failed to generate comment. Please try again.');
+      }
     } finally {
       setIsGenerating(false);
     }

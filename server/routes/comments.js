@@ -10,14 +10,33 @@ const router = express.Router();
 const validateCommentRequest = [
   body('rulemaking_id').notEmpty().withMessage('Rulemaking ID is required'),
   body('user_name').notEmpty().withMessage('Name is required'),
-  body('recaptcha_token').notEmpty().withMessage('reCAPTCHA verification is required')
+  body('recaptcha_token').custom((value, { req }) => {
+    // In development mode, allow empty recaptcha_token
+    if (process.env.NODE_ENV === 'development') {
+      return true;
+    }
+    // In production, require recaptcha_token
+    if (!value || value.trim() === '') {
+      throw new Error('reCAPTCHA verification is required');
+    }
+    return true;
+  })
 ];
 
 // POST /api/comments/generate - Generate a comment letter
 router.post('/generate', validateCommentRequest, async (req, res, next) => {
   try {
+    console.log('Comment generation request received:', {
+      rulemaking_id: req.body.rulemaking_id,
+      user_name: req.body.user_name,
+      recaptcha_token: req.body.recaptcha_token ? 'present' : 'missing',
+      has_email: !!req.body.user_email,
+      has_personal_story: !!req.body.personal_story
+    });
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.error('Validation errors:', errors.array());
       return res.status(400).json({ 
         error: 'Validation failed', 
         details: errors.array() 
