@@ -13,6 +13,10 @@ RUN npm ci --only=production
 # Copy client source code
 COPY client/ ./
 
+# Set environment variables for React build
+ARG REACT_APP_RECAPTCHA_SITE_KEY
+ENV REACT_APP_RECAPTCHA_SITE_KEY=$REACT_APP_RECAPTCHA_SITE_KEY
+
 # Build the React client
 RUN npm run build
 

@@ -131,7 +131,9 @@ gcloud auth configure-docker us-east1-docker.pkg.dev
 
 # Build the Docker image for Linux AMD64 platform
 echo -e "${BLUE}🏗️  Building Docker image...${NC}"
-docker build --platform linux/amd64 -t $IMAGE_NAME:latest .
+docker build --platform linux/amd64 \
+  --build-arg REACT_APP_RECAPTCHA_SITE_KEY="$REACT_APP_RECAPTCHA_SITE_KEY" \
+  -t $IMAGE_NAME:latest .
 
 # Push the image to Artifacts Registry
 echo -e "${BLUE}📤 Pushing image to Artifacts Registry...${NC}"
