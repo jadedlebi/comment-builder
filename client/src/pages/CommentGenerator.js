@@ -461,7 +461,7 @@ const CommentGenerator = () => {
                 {isEditing ? 'Done Editing' : 'Edit Letter'}
               </button>
             </div>
-            <div className="bg-white border rounded overflow-hidden w-full">
+            <div className="bg-white border rounded overflow-hidden">
               {isEditing ? (
                 <textarea
                   value={generatedComment}
@@ -470,14 +470,14 @@ const CommentGenerator = () => {
                   placeholder="Edit your letter here..."
                 />
               ) : (
-                <div className="p-4 max-h-96 overflow-y-auto overflow-x-hidden w-full">
+                <div className="p-4 max-h-96 overflow-y-auto overflow-x-hidden">
                   <div 
-                    className="text-sm text-gray-800 font-sans whitespace-pre-wrap break-words overflow-wrap-anywhere w-full"
+                    className="text-sm text-gray-800 font-sans whitespace-pre-wrap"
                     style={{ 
-                      wordBreak: 'break-word', 
-                      overflowWrap: 'anywhere',
-                      width: '100%',
-                      maxWidth: '100%'
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
+                      maxWidth: '100%',
+                      width: '100%'
                     }}
                   >
                     {generatedComment}
