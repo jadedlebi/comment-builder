@@ -26,17 +26,8 @@ const validateCommentRequest = [
 // POST /api/comments/generate - Generate a comment letter
 router.post('/generate', validateCommentRequest, async (req, res, next) => {
   try {
-    console.log('Comment generation request received:', {
-      rulemaking_id: req.body.rulemaking_id,
-      user_name: req.body.user_name,
-      recaptcha_token: req.body.recaptcha_token ? 'present' : 'missing',
-      has_email: !!req.body.user_email,
-      has_personal_story: !!req.body.personal_story
-    });
-    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error('Validation errors:', errors.array());
       return res.status(400).json({ 
         error: 'Validation failed', 
         details: errors.array() 
@@ -190,49 +181,25 @@ router.get('/:id', async (req, res, next) => {
 
 // Helper function to verify reCAPTCHA
 async function verifyRecaptcha(token) {
-  console.log('reCAPTCHA verification called with token:', token ? 'present' : 'missing');
-  console.log('Environment check:', {
-    NODE_ENV: process.env.NODE_ENV,
-    RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY ? 'present' : 'missing'
-  });
-
   if (!process.env.RECAPTCHA_SECRET_KEY) {
-    console.warn('reCAPTCHA secret key not configured, skipping verification');
     return true; // Allow in development
   }
 
   // Skip reCAPTCHA verification in development mode
   if (process.env.NODE_ENV === 'development') {
-    console.log('Development mode: skipping reCAPTCHA verification');
     return true;
   }
 
-  // Temporary: Skip reCAPTCHA verification due to configuration issues
-  // TODO: Fix reCAPTCHA configuration - getting "browser-error" from Google API
-  console.log('Temporary: skipping reCAPTCHA verification due to browser-error issue');
-  return true;
-
   try {
-    const requestBody = `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`;
-    console.log('Sending reCAPTCHA verification request with body length:', requestBody.length);
-    console.log('Token being verified:', token.substring(0, 20) + '...');
-    console.log('Secret key being used:', process.env.RECAPTCHA_SECRET_KEY ? 'present' : 'missing');
-    
     const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: requestBody
+      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`
     });
 
     const data = await response.json();
-    console.log('reCAPTCHA verification response:', JSON.stringify(data, null, 2));
-    
-    if (data['error-codes']) {
-      console.log('reCAPTCHA error codes:', data['error-codes']);
-    }
-    
     return data.success;
   } catch (error) {
     console.error('reCAPTCHA verification error:', error);

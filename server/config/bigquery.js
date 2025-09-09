@@ -12,10 +12,7 @@ function getDatasetId() {
 }
 
 // Debug logging
-console.log('🔍 BigQuery Configuration:');
-console.log('   Project ID:', process.env.BQ_PROJECT_ID);
-console.log('   Dataset ID:', getDatasetId());
-console.log('   Environment:', process.env.NODE_ENV);
+// BigQuery configuration loaded
 
 // Table schemas
 const tableSchemas = {
@@ -83,7 +80,7 @@ async function initializeDatabase() {
     // Create dataset if it doesn't exist
     const datasetId = getDatasetId();
     const [dataset] = await bigquery.dataset(datasetId).get({ autoCreate: true });
-    console.log(`📊 Dataset ${datasetId} ready`);
+    // Dataset ready
 
     // Create tables
     for (const [tableName, schema] of Object.entries(tableSchemas)) {
@@ -92,7 +89,7 @@ async function initializeDatabase() {
         autoCreate: true,
         schema: schema
       });
-      console.log(`📋 Table ${tableName} ready`);
+      // Table ready
     }
 
     return true;
@@ -107,17 +104,9 @@ const db = {
   // Insert a new record
   async insert(tableName, data) {
     try {
-      console.log('🔍 BigQuery insert - Table:', tableName);
-      console.log('🔍 BigQuery insert - Data:', JSON.stringify(data, null, 2));
-      
       const datasetId = getDatasetId();
-      console.log('🔍 BigQuery insert - Dataset ID:', datasetId);
-      
       const table = bigquery.dataset(datasetId).table(tableName);
-      console.log('🔍 BigQuery insert - Table reference created');
-      
       const [job] = await table.insert(data);
-      console.log('✅ BigQuery insert - Job completed:', job);
       return job;
     } catch (error) {
       console.error('❌ BigQuery insert error:', error);

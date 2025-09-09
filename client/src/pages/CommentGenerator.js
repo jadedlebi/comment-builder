@@ -81,7 +81,6 @@ const CommentGenerator = () => {
           window.grecaptcha.ready(() => {
             window.grecaptcha.execute(process.env.REACT_APP_RECAPTCHA_SITE_KEY, { action: 'submit' })
               .then((token) => {
-                console.log('reCAPTCHA token generated:', token);
                 setRecaptchaToken(token);
                 resolve(token);
               })
@@ -122,15 +121,7 @@ const CommentGenerator = () => {
           alert('reCAPTCHA verification failed. Please try again.');
           return;
         }
-      } else {
-        console.warn('reCAPTCHA site key not configured');
       }
-
-      console.log('Sending request with data:', {
-        ...formData,
-        rulemaking_id: rulemakingId,
-        recaptcha_token: token
-      });
 
       const response = await api.post('/comments/generate', {
         ...formData,
@@ -144,7 +135,6 @@ const CommentGenerator = () => {
     } catch (err) {
       console.error('Error generating comment:', err);
       if (err.response && err.response.data) {
-        console.error('Server error details:', err.response.data);
         alert(`Failed to generate comment: ${err.response.data.error || 'Unknown error'}`);
       } else {
         alert('Failed to generate comment. Please try again.');

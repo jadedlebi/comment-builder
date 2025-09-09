@@ -75,16 +75,13 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/rulemakings - Create new rulemaking (admin only)
 router.post('/', validateRulemaking, async (req, res, next) => {
   try {
-    console.log('🔍 POST /api/rulemakings - Request body:', JSON.stringify(req.body, null, 2));
-    
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      console.log('❌ Validation errors:', errors.array());
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: errors.array() 
-      });
-    }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ 
+      error: 'Validation failed', 
+      details: errors.array() 
+    });
+  }
 
     const {
       agency,
@@ -105,22 +102,7 @@ router.post('/', validateRulemaking, async (req, res, next) => {
     if (comment_deadline) {
       const date = new Date(comment_deadline);
       formattedCommentDeadline = date.toISOString().split('T')[0];
-      console.log('🔍 Converted comment_deadline:', formattedCommentDeadline);
     }
-
-    console.log('🔍 Parsed data:', {
-      agency,
-      title,
-      description,
-      docket_id,
-      federal_register_url,
-      comment_deadline: formattedCommentDeadline,
-      status,
-      context_documents,
-      legal_analysis,
-      opposition_points,
-      ncrc_comment_letter
-    });
 
     const rulemaking = {
       id: uuidv4(),
@@ -139,10 +121,7 @@ router.post('/', validateRulemaking, async (req, res, next) => {
       updated_at: new Date().toISOString()
     };
 
-    console.log('🔍 Rulemaking object to insert:', JSON.stringify(rulemaking, null, 2));
-
     await db.insert('rulemakings', [rulemaking]);
-    console.log('✅ Successfully inserted rulemaking');
     res.status(201).json({ rulemaking });
   } catch (error) {
     console.error('❌ Error in POST /api/rulemakings:', error);
@@ -154,17 +133,13 @@ router.post('/', validateRulemaking, async (req, res, next) => {
 // PUT /api/rulemakings/:id - Update rulemaking (admin only)
 router.put('/:id', validateRulemaking, async (req, res, next) => {
   try {
-    console.log('🔍 PUT /api/rulemakings - Request body:', JSON.stringify(req.body, null, 2));
-    console.log('🔍 PUT /api/rulemakings - Rulemaking ID:', req.params.id);
-    
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      console.log('❌ Validation errors:', errors.array());
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: errors.array() 
-      });
-    }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ 
+      error: 'Validation failed', 
+      details: errors.array() 
+    });
+  }
 
     const existingRulemaking = await db.getById('rulemakings', req.params.id);
     if (!existingRulemaking) {
