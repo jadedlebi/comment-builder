@@ -210,6 +210,8 @@ async function verifyRecaptcha(token) {
   try {
     const requestBody = `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`;
     console.log('Sending reCAPTCHA verification request with body length:', requestBody.length);
+    console.log('Token being verified:', token.substring(0, 20) + '...');
+    console.log('Secret key being used:', process.env.RECAPTCHA_SECRET_KEY ? 'present' : 'missing');
     
     const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
       method: 'POST',
@@ -220,7 +222,12 @@ async function verifyRecaptcha(token) {
     });
 
     const data = await response.json();
-    console.log('reCAPTCHA verification response:', data);
+    console.log('reCAPTCHA verification response:', JSON.stringify(data, null, 2));
+    
+    if (data['error-codes']) {
+      console.log('reCAPTCHA error codes:', data['error-codes']);
+    }
+    
     return data.success;
   } catch (error) {
     console.error('reCAPTCHA verification error:', error);
