@@ -470,9 +470,9 @@ const CommentGenerator = () => {
                   placeholder="Edit your letter here..."
                 />
               ) : (
-                <div className="p-4 max-h-96 overflow-y-auto overflow-x-hidden">
+                <div className="p-4 max-h-[600px] overflow-y-auto overflow-x-hidden border border-gray-200 rounded">
                   <div 
-                    className="text-sm text-gray-800 font-sans whitespace-pre-wrap"
+                    className="text-sm text-gray-800 font-sans whitespace-pre-wrap pb-4"
                     style={{ 
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
