@@ -190,6 +190,12 @@ router.get('/:id', async (req, res, next) => {
 
 // Helper function to verify reCAPTCHA
 async function verifyRecaptcha(token) {
+  console.log('reCAPTCHA verification called with token:', token ? 'present' : 'missing');
+  console.log('Environment check:', {
+    NODE_ENV: process.env.NODE_ENV,
+    RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY ? 'present' : 'missing'
+  });
+
   if (!process.env.RECAPTCHA_SECRET_KEY) {
     console.warn('reCAPTCHA secret key not configured, skipping verification');
     return true; // Allow in development
@@ -202,12 +208,15 @@ async function verifyRecaptcha(token) {
   }
 
   try {
+    const requestBody = `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`;
+    console.log('Sending reCAPTCHA verification request with body length:', requestBody.length);
+    
     const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`
+      body: requestBody
     });
 
     const data = await response.json();
