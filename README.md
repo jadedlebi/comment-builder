@@ -1,4 +1,4 @@
-# Comment Builder
+# CFPB Comment Builder
 
 A full-stack application for generating and managing regulatory comments with dynamic admin management. Supports multiple agencies including CFPB, SEC, and other regulatory bodies.
 
@@ -59,7 +59,8 @@ make clean     # Clean build artifacts
 ## 🔧 Configuration
 
 ### Environment Variables
-Create a `server/.env` file with:
+Create a `server/.env` file with the following structure:
+
 ```env
 # BigQuery Configuration
 BQ_PROJECT_ID=your-project-id
@@ -83,12 +84,15 @@ CLAUDE_MODEL=claude-3-sonnet-20240229
 # reCAPTCHA (optional)
 RECAPTCHA_SITE_KEY=your-recaptcha-site-key
 RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
+
+# Environment
+NODE_ENV=production
 ```
 
 ## 🚀 Deployment
 
 ### Google Cloud Setup
-1. Create a Google Cloud project: `comment-builder`
+1. Create a Google Cloud project
 2. Enable required APIs:
    ```bash
    gcloud services enable cloudbuild.googleapis.com
@@ -98,7 +102,7 @@ RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
 3. Set up authentication:
    ```bash
    gcloud auth login
-   gcloud config set project comment-builder
+   gcloud config set project your-project-id
    ```
 
 ### Deploy
@@ -113,6 +117,9 @@ make build
 
 ## 🔐 Admin Management
 
+### Dynamic Admin System
+The application uses a database-driven authentication system that allows you to add, remove, and manage admin users without code changes.
+
 ### Initial Setup
 After deployment, create the admin table:
 ```bash
@@ -123,7 +130,48 @@ curl -X POST https://your-service-url/api/admin/setup
 ### Admin Access
 - **Login**: `/admin/login`
 - **Dashboard**: `/admin`
-- **Default credentials**: See `ADMIN_CREDENTIALS.md`
+- **API Endpoints**: `/api/admin/*`
+
+### Admin Management Features
+- **Dynamic Admin Management**: Add/remove admins through API endpoints
+- **Secure Password Storage**: Passwords are hashed using bcrypt
+- **Database-Driven**: All admin data stored in BigQuery
+- **No Code Changes**: Add new admins without touching the codebase
+- **Audit Trail**: Track creation, updates, and last login times
+
+## 📊 Database Schema
+
+### Admin Users Table
+```sql
+- id: STRING (unique identifier)
+- email: STRING (admin email address)
+- password_hash: STRING (bcrypt hashed password)
+- name: STRING (admin display name)
+- role: STRING (admin role - default: 'admin')
+- is_active: BOOLEAN (account status)
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+- last_login: TIMESTAMP
+```
+
+### Comment Submissions Table
+```sql
+- id: STRING (unique identifier)
+- rulemaking_id: STRING (reference to rulemaking)
+- user_name: STRING (submitter name)
+- user_email: STRING (submitter email)
+- user_city: STRING (submitter city)
+- user_state: STRING (submitter state)
+- user_zip: STRING (submitter zip code)
+- personal_story: STRING (personal story text)
+- why_it_matters: STRING (why it matters text)
+- experiences: STRING (experiences text)
+- concerns: STRING (concerns text)
+- generated_comment: STRING (AI-generated comment)
+- status: STRING (submission status)
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+```
 
 ## 📊 Project Structure
 
@@ -159,11 +207,14 @@ comment_builder/
 2. Run scripts on deployed service
 3. Test changes
 
-## 📞 Support
+## 🔒 Security Features
 
-- **Issues**: Create issues in the GitHub repository
-- **Documentation**: See individual markdown files in the project
-- **Deployment**: Check `GOOGLE_CLOUD_DEPLOYMENT.md`
+- **Password Hashing**: All passwords stored as bcrypt hashes
+- **Token-Based Auth**: Session tokens for API access
+- **Database Security**: No credentials in code or environment variables
+- **Audit Logging**: Track all admin activities
+- **Role-Based Access**: Support for different admin roles
+- **reCAPTCHA Protection**: Spam protection for comment generation
 
 ## 🎯 Features
 
@@ -172,6 +223,37 @@ comment_builder/
 - ✅ Database-driven authentication
 - ✅ API endpoints for admin CRUD operations
 - ✅ Protected admin routes
+- ✅ AI-powered comment generation
+- ✅ reCAPTCHA spam protection
+- ✅ Responsive text wrapping
 - ✅ Comprehensive documentation
 - ✅ Simple deployment process
 - ✅ Manual deployment control
+
+## 🆘 Troubleshooting
+
+### Common Issues
+
+**"Authentication failed"**
+- Check that all BQ_* variables are set correctly
+- Verify the private key includes proper line breaks (`\n`)
+- Ensure the service account has BigQuery permissions
+
+**"Project not found"**
+- Verify BQ_PROJECT_ID is correct
+- Check that BigQuery API is enabled
+- Ensure you have access to the project
+
+**"Dataset not found"**
+- This is normal for first-time setup
+- Run `node scripts/init-database.js` to create the dataset
+
+**Text overflow issues**
+- Fixed with proper CSS word-wrapping
+- Uses `word-break: break-word` and `overflow-wrap: anywhere`
+
+## 📞 Support
+
+- **Issues**: Create issues in the GitHub repository
+- **Documentation**: See individual markdown files in the project
+- **Deployment**: Check deployment logs with `make logs`
