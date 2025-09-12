@@ -57,7 +57,43 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL || true, // Allow all origins in production
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Allow your deployed frontend
+    if (process.env.CLIENT_URL && origin === process.env.CLIENT_URL) {
+      return callback(null, true);
+    }
+    
+    // Allow the service's own domain (for admin dashboard)
+    if (origin === 'https://comment-builder-892833260112.us-east1.run.app') {
+      return callback(null, true);
+    }
+    
+    // Allow your WordPress domain
+    if (origin === 'https://ncrc.org' || origin === 'https://www.ncrc.org') {
+      return callback(null, true);
+    }
+    
+    // Allow any subdomain of ncrc.org for embeddable widgets
+    if (origin.match(/^https:\/\/[a-zA-Z0-9-]+\.ncrc\.org$/)) {
+      return callback(null, true);
+    }
+    
+    // In production, be more restrictive
+    if (process.env.NODE_ENV === 'production') {
+      return callback(new Error('Not allowed by CORS'));
+    }
+    
+    // In development, allow all origins
+    return callback(null, true);
+  },
   credentials: true
 }));
 

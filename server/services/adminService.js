@@ -1,14 +1,8 @@
-const { BigQuery } = require('@google-cloud/bigquery');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
+const { bigquery, getDatasetId } = require('../config/bigquery');
 
-// Initialize BigQuery client
-// Use Application Default Credentials for Cloud Run (same as main config)
-const bigquery = new BigQuery({
-  projectId: process.env.BQ_PROJECT_ID
-});
-
-const datasetId = process.env.BIGQUERY_DATASET || 'cfpb';
+const datasetId = getDatasetId();
 const tableId = 'admin_users';
 
 class AdminService {
@@ -105,7 +99,7 @@ class AdminService {
 
       const adminId = uuidv4();
       const passwordHash = await bcrypt.hash(password, 10);
-      const now = new Date().toISOString();
+      const now = new Date();
 
       const query = `
         INSERT INTO \`${process.env.BQ_PROJECT_ID}.${datasetId}.${tableId}\`
@@ -125,6 +119,17 @@ class AdminService {
           created_at: now,
           updated_at: now,
           last_login: null
+        },
+        types: {
+          id: 'STRING',
+          email: 'STRING',
+          password_hash: 'STRING',
+          name: 'STRING',
+          role: 'STRING',
+          is_active: 'BOOL',
+          created_at: 'TIMESTAMP',
+          updated_at: 'TIMESTAMP',
+          last_login: 'TIMESTAMP'
         }
       };
 

@@ -9,17 +9,25 @@ router.get('/', async (req, res, next) => {
     const { rulemaking_id, status, limit = 100, offset = 0 } = req.query;
     
     const datasetId = getDatasetId();
-    let sql = `SELECT * FROM \`${datasetId}.submissions\``;
+    let sql = `
+      SELECT 
+        s.*,
+        r.title as rulemaking_title,
+        r.agency,
+        r.docket_id
+      FROM \`${datasetId}.submissions\` s
+      LEFT JOIN \`${datasetId}.rulemakings\` r ON s.rulemaking_id = r.id
+    `;
     const params = {};
     const conditions = [];
 
     if (rulemaking_id) {
-      conditions.push('rulemaking_id = @rulemaking_id');
+      conditions.push('s.rulemaking_id = @rulemaking_id');
       params.rulemaking_id = rulemaking_id;
     }
 
     if (status) {
-      conditions.push('submission_status = @status');
+      conditions.push('s.submission_status = @status');
       params.status = status;
     }
 
@@ -27,7 +35,7 @@ router.get('/', async (req, res, next) => {
       sql += ` WHERE ${conditions.join(' AND ')}`;
     }
 
-    sql += ` ORDER BY created_at DESC LIMIT @limit OFFSET @offset`;
+    sql += ` ORDER BY s.created_at DESC LIMIT @limit OFFSET @offset`;
     params.limit = parseInt(limit);
     params.offset = parseInt(offset);
 

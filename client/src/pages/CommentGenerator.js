@@ -58,10 +58,26 @@ const CommentGenerator = () => {
 
   // Load reCAPTCHA v3 script
   useEffect(() => {
+    if (!process.env.REACT_APP_RECAPTCHA_SITE_KEY) {
+      console.warn('reCAPTCHA site key not found');
+      return;
+    }
+
+    console.log('Loading reCAPTCHA script...');
+    
     const script = document.createElement('script');
     script.src = 'https://www.google.com/recaptcha/api.js?render=' + process.env.REACT_APP_RECAPTCHA_SITE_KEY;
     script.async = true;
     script.defer = true;
+    
+    script.onload = () => {
+      console.log('reCAPTCHA script loaded successfully');
+    };
+    
+    script.onerror = (error) => {
+      console.error('Failed to load reCAPTCHA script:', error);
+    };
+    
     document.head.appendChild(script);
 
     return () => {
@@ -75,20 +91,41 @@ const CommentGenerator = () => {
 
   const executeRecaptcha = () => {
     return new Promise((resolve, reject) => {
+      console.log('Starting reCAPTCHA execution...');
+      
+      if (!process.env.REACT_APP_RECAPTCHA_SITE_KEY) {
+        const error = new Error('reCAPTCHA site key not available');
+        console.error(error.message);
+        reject(error);
+        return;
+      }
+
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds max wait time
+      
       // Wait for reCAPTCHA to be available
       const checkRecaptcha = () => {
+        attempts++;
+        console.log(`reCAPTCHA check attempt ${attempts}/${maxAttempts}`);
+        
         if (window.grecaptcha && window.grecaptcha.ready) {
+          console.log('reCAPTCHA is ready, executing...');
           window.grecaptcha.ready(() => {
             window.grecaptcha.execute(process.env.REACT_APP_RECAPTCHA_SITE_KEY, { action: 'submit' })
               .then((token) => {
+                console.log('reCAPTCHA token generated successfully:', token ? 'Token received' : 'No token');
                 setRecaptchaToken(token);
                 resolve(token);
               })
               .catch((error) => {
-                console.error('reCAPTCHA error:', error);
+                console.error('reCAPTCHA execution error:', error);
                 reject(error);
               });
           });
+        } else if (attempts >= maxAttempts) {
+          const error = new Error('reCAPTCHA failed to load after maximum attempts');
+          console.error(error.message);
+          reject(error);
         } else {
           // Wait a bit and try again
           setTimeout(checkRecaptcha, 100);
@@ -100,8 +137,22 @@ const CommentGenerator = () => {
   };
 
   const generateComment = async () => {
-    if (!formData.user_name.trim()) {
-      alert('Please enter your name');
+    // Validate all required fields
+    const requiredFields = {
+      'Full Name': formData.user_name,
+      'Email': formData.user_email,
+      'City': formData.user_city,
+      'State': formData.user_state,
+      'ZIP Code': formData.user_zip,
+      'Why does this issue matter to you?': formData.why_it_matters
+    };
+    
+    const missingFields = Object.entries(requiredFields)
+      .filter(([field, value]) => !value || !value.trim())
+      .map(([field]) => field);
+    
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -112,22 +163,33 @@ const CommentGenerator = () => {
       let token = null;
       if (process.env.REACT_APP_RECAPTCHA_SITE_KEY) {
         try {
+          console.log('Attempting to generate reCAPTCHA token...');
           token = await executeRecaptcha();
           if (!token) {
             throw new Error('reCAPTCHA token is empty');
           }
+          console.log('reCAPTCHA token generated successfully');
         } catch (error) {
           console.error('reCAPTCHA execution failed:', error);
-          alert('reCAPTCHA verification failed. Please try again.');
+          alert(`reCAPTCHA verification failed: ${error.message}. Please refresh the page and try again.`);
           return;
         }
+      } else {
+        console.warn('reCAPTCHA site key not available, skipping reCAPTCHA verification');
       }
 
-      const response = await api.post('/comments/generate', {
+      const requestData = {
         ...formData,
         rulemaking_id: rulemakingId,
         recaptcha_token: token
+      };
+      
+      console.log('Sending request to API:', {
+        ...requestData,
+        recaptcha_token: token ? 'Token present' : 'No token'
       });
+      
+      const response = await api.post('/comments/generate', requestData);
 
       setGeneratedComment(response.data.generated_comment);
       setSubmissionId(response.data.submission_id);
@@ -311,7 +373,7 @@ const CommentGenerator = () => {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Email (optional)</label>
+                <label className="form-label">Email *</label>
                 <input
                   type="email"
                   value={formData.user_email}
@@ -324,7 +386,7 @@ const CommentGenerator = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="form-group">
-                <label className="form-label">City</label>
+                <label className="form-label">City *</label>
                 <input
                   type="text"
                   value={formData.user_city}
@@ -334,7 +396,7 @@ const CommentGenerator = () => {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">State</label>
+                <label className="form-label">State *</label>
                 <input
                   type="text"
                   value={formData.user_state}
@@ -344,7 +406,7 @@ const CommentGenerator = () => {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">ZIP Code</label>
+                <label className="form-label">ZIP Code *</label>
                 <input
                   type="text"
                   value={formData.user_zip}
@@ -356,7 +418,7 @@ const CommentGenerator = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Why does this issue matter to you?</label>
+              <label className="form-label">Why does this issue matter to you? *</label>
               <textarea
                 value={formData.why_it_matters}
                 onChange={(e) => handleInputChange('why_it_matters', e.target.value)}
@@ -410,7 +472,7 @@ const CommentGenerator = () => {
             </button>
             <button
               onClick={generateComment}
-              disabled={!formData.user_name || isGenerating}
+              disabled={!formData.user_name || !formData.user_email || !formData.user_city || !formData.user_state || !formData.user_zip || !formData.why_it_matters || isGenerating}
               className="btn btn-primary flex-1"
             >
               {isGenerating ? (
@@ -470,14 +532,21 @@ const CommentGenerator = () => {
                   placeholder="Edit your letter here..."
                 />
               ) : (
-                <div className="p-4 max-h-[600px] overflow-y-auto overflow-x-hidden border border-gray-200 rounded">
+                <div 
+                  className="p-4 overflow-y-auto overflow-x-hidden border border-gray-200 rounded"
+                  style={{ 
+                    maxHeight: '600px',
+                    minHeight: '200px'
+                  }}
+                >
                   <div 
                     className="text-sm text-gray-800 font-sans whitespace-pre-wrap pb-4"
                     style={{ 
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
                       maxWidth: '100%',
-                      width: '100%'
+                      width: '100%',
+                      lineHeight: '1.5'
                     }}
                   >
                     {generatedComment}
