@@ -117,3 +117,6 @@ database-initialized.flag
 
 # Deployment artifacts
 *.log
+
+# Documentation and assets (not tracked)
+docs/
