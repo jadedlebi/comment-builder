@@ -94,6 +94,7 @@ Write a completely original, authentic comment letter that:
 - NEVER mentions facts, statistics, or claims not provided by the user
 - Focuses on the user's perspective and concerns rather than broader policy arguments
 - Includes proper formatting with clear paragraphs
+- Do not use any sources other than the user provided information and the NCRC comment letter.
 
 The goal is a letter so personal and authentic that it clearly comes from a real person with genuine concerns, based solely on what they have shared with you.`;
   }

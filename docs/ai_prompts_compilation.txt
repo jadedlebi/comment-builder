@@ -1,0 +1,177 @@
+AI PROMPTS COMPILATION FOR CFPB COMMENT APP
+=============================================
+
+This file contains all AI prompts and instructions scattered throughout the codebase.
+After editing these prompts, they can be re-inserted into their respective files.
+
+================================================================================
+1. MAIN AI PROMPT - server/utils/claudeService.js (buildPrompt method)
+================================================================================
+
+Location: server/utils/claudeService.js, lines 40-98
+Method: buildPrompt(rulemakingData, userData)
+
+FULL PROMPT:
+-----------
+You are helping create a unique, personalized comment letter opposing the ${agency}'s proposed rule "${title}" (Docket No. ${docket_id}).
+
+The user has provided:
+- Name: ${name}
+- Location: ${city ? city + ', ' : ''}${state || ''}
+- Personal story: ${personal_story || 'Not provided'}
+- Why this issue matters: ${why_it_matters || 'Not provided'}
+- Financial service experiences: ${experiences || 'Not provided'}
+- Concerns about the rule: ${concerns || 'Not provided'}
+
+Background context (DO NOT quote or copy directly from any source):
+${description || 'No description provided'}
+
+Legal analysis context (DO NOT quote directly):
+${legal_analysis || 'No legal analysis provided'}
+
+Key opposition points (DO NOT quote directly):
+${opposition_points ? JSON.stringify(opposition_points) : 'No specific opposition points provided'}
+
+NCRC Comment Letter Context (DO NOT quote directly - use as inspiration for tone and key arguments):
+${ncrc_comment_letter || 'No NCRC comment letter provided'}
+
+Write a completely original, authentic comment letter that:
+- Sounds like it comes from this specific person, not a template
+- Uses ONLY their own words and experiences as the foundation
+- Explains the issue in their voice, using analogies or examples that fit their background
+- Makes 1-3 points about why the rule change is problematic based on their stated concerns
+- Connects to their community or personal situation
+- Shows genuine concern rather than policy jargon
+- Is 300-500 words
+- Avoids any phrases that sound like they came from advocacy materials
+- Uses conversational but respectful tone appropriate for government comment
+- NEVER suggests policy alternatives or solutions - only expresses opposition to the proposed rule
+- NEVER mentions facts, statistics, or claims not provided by the user
+- Focuses on the user's perspective and concerns rather than broader policy arguments
+- Includes proper formatting with clear paragraphs
+- Do not use any sources other than the user provided information and the NCRC comment letter.
+
+The goal is a letter so personal and authentic that it clearly comes from a real person with genuine concerns, based solely on what they have shared with you.
+
+================================================================================
+2. USER-FACING INSTRUCTIONS - client/src/pages/CommentGenerator.js
+================================================================================
+
+Location: client/src/pages/CommentGenerator.js, lines 336-347
+Section: Step 2 form description
+
+USER INSTRUCTIONS:
+-----------------
+Share your information and experiences. We'll combine this with our analysis to create a draft comment letter.
+
+Important: This tool creates a draft to help organize your thoughts and speed up the process. 
+You will need to review, edit, and personalize the generated letter before submitting it as your own comment 
+to the Federal Register. The final letter should reflect your genuine views and experiences.
+
+================================================================================
+3. LEGAL DISCLAIMER - client/src/pages/CommentGenerator.js
+================================================================================
+
+Location: client/src/pages/CommentGenerator.js, lines 491-499
+Section: Step 3 legal notice
+
+LEGAL DISCLAIMER:
+----------------
+⚠️ Important Legal Notice:
+
+This is a DRAFT letter created to help organize your thoughts and speed up the comment process. 
+You must review, edit, and personalize this content before submitting it as your official comment 
+to the Federal Register. Any final submission to the Federal Register must reflect your genuine personal views and experiences. 
+NCRC provides this tool solely to assist in organizing public participation in the regulatory process.
+
+================================================================================
+4. REQUIRED NEXT STEPS - client/src/pages/CommentGenerator.js
+================================================================================
+
+Location: client/src/pages/CommentGenerator.js, lines 545-554
+Section: Step 3 required actions
+
+REQUIRED NEXT STEPS:
+-------------------
+Required Next Steps:
+
+1. Carefully review the draft letter above
+2. Edit and personalize the content to ensure it accurately reflects your views
+3. Add or modify any details to make it authentically yours
+4. Copy your edited letter to your clipboard
+5. Go to the official Federal Register comment portal and paste your personalized letter
+
+================================================================================
+5. REMINDER TEXT - client/src/pages/CommentGenerator.js
+================================================================================
+
+Location: client/src/pages/CommentGenerator.js, lines 583-588
+Section: Step 3 reminder
+
+REMINDER TEXT:
+-------------
+Remember: The comment deadline is {format(deadlineDate, 'MMMM dd, yyyy')}. After editing your draft to reflect your personal views, 
+submit your personalized comment to help show the agency that real people oppose this rulemaking.
+
+================================================================================
+6. FORM FIELD LABELS AND PLACEHOLDERS - client/src/pages/CommentGenerator.js
+================================================================================
+
+Location: client/src/pages/CommentGenerator.js, lines 406-448
+Section: Step 2 form fields
+
+FORM FIELD INSTRUCTIONS:
+-----------------------
+
+Why does this issue matter to you?
+Placeholder: "Share why this rulemaking is important to you and your family..."
+
+Personal experiences (optional)
+Placeholder: "Have you or someone you know experienced problems related to this issue? Share your story..."
+
+Concerns about this rulemaking (optional)
+Placeholder: "What worries you most about this proposed rule?"
+
+Personal story or background (optional)
+Placeholder: "Tell us about yourself - are you a parent, small business owner, student, retiree? This helps personalize your letter..."
+
+================================================================================
+7. BUTTON TEXT AND LABELS - client/src/pages/CommentGenerator.js
+================================================================================
+
+Location: client/src/pages/CommentGenerator.js, various lines
+Section: Various UI elements
+
+BUTTON TEXT:
+-----------
+- "Start Creating Your Comment Letter"
+- "Generate My Comment Letter"
+- "Generating Your Letter..."
+- "Edit Letter" / "Done Editing"
+- "Copy Draft to Clipboard"
+- "Submit to Federal Register Portal"
+- "Create Another Draft"
+
+================================================================================
+8. PAGE TITLES AND HEADINGS - client/src/pages/CommentGenerator.js
+================================================================================
+
+Location: client/src/pages/CommentGenerator.js, various lines
+Section: Various page sections
+
+PAGE TITLES:
+-----------
+- "Tell Your Story"
+- "Your Draft Comment Letter is Ready!"
+- "Generated Draft Letter:"
+
+================================================================================
+END OF COMPILATION
+================================================================================
+
+NOTES:
+- The main AI prompt is in server/utils/claudeService.js in the buildPrompt method
+- User-facing instructions and disclaimers are in client/src/pages/CommentGenerator.js
+- All prompts are designed to create personalized, authentic comment letters
+- The system emphasizes that users must review and personalize generated content
+- Legal disclaimers are prominently displayed to ensure compliance

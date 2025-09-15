@@ -349,7 +349,7 @@ const CommentGenerator = () => {
         <div className="card">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Tell Your Story</h1>
           <p className="text-gray-600 mb-6">
-            Share your information and experiences. We'll combine this with our legal analysis to create a draft comment letter.
+            Share your information and experiences. We'll combine this with our analysis to create a draft comment letter.
           </p>
           
           <div className="alert alert-info">

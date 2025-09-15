@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<!--
+    CFPB Comment Widget - Version 2.1.2
+    Updated: 2025-01-27 15:45:00
+    Changes: Fixed input focus loss issue - removed form re-rendering on every keystroke
+    Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
+    Cache Buster: 20250127154500
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment Submission Widget</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Container */
+        .comment-widget {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Typography */
+        .text-center { text-align: center; }
+        .text-sm { font-size: 14px; }
+        .text-lg { font-size: 18px; }
+        .text-xl { font-size: 20px; }
+        .text-2xl { font-size: 24px; }
+        .text-3xl { font-size: 30px; }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .text-gray-600 { color: #6b7280; }
+        .text-gray-700 { color: #374151; }
+        .text-gray-900 { color: #111827; }
+        .text-green-600 { color: #059669; }
+        .text-red-600 { color: #dc2626; }
+
+        /* Spacing */
+        .mb-2 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 12px; }
+        .mb-4 { margin-bottom: 16px; }
+        .mb-6 { margin-bottom: 24px; }
+        .mb-8 { margin-bottom: 32px; }
+        .mt-4 { margin-top: 16px; }
+        .mt-6 { margin-top: 24px; }
+        .mt-8 { margin-top: 32px; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2fade3 0%, #1e90c7 100%);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(47, 173, 227, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1e90c7 0%, #0f7bb8 100%);
+            box-shadow: 0 6px 20px 0 rgba(47, 173, 227, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 6px 20px 0 rgba(16, 185, 129, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #6b7280;
+            border: 2px solid #d1d5db;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #9ca3af;
+            color: #6b7280;
+        }
+
+        .btn:disabled:hover {
+            background-color: #9ca3af;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #2fade3;
+            box-shadow: 0 0 0 3px rgba(47, 173, 227, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .gap-4 { gap: 16px; }
+
+        /* Flexbox */
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .space-x-4 > * + * { margin-left: 16px; }
+
+        /* Alerts */
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid;
+        }
+
+        .alert-info {
+            background-color: #eff6ff;
+            border-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .alert-warning {
+            background-color: #fefbf0;
+            border-color: #fcd34d;
+            color: #92400e;
+        }
+
+        .alert-error {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .alert-success {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #2fade3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Utility classes */
+        .hidden { display: none; }
+        .whitespace-pre-wrap { white-space: pre-wrap; }
+        .resize-none { resize: none; }
+        .w-full { width: 100%; }
+        .max-h-400 { max-height: 400px; }
+        .overflow-y-auto { overflow-y: auto; }
+        .border { border: 1px solid #e5e7eb; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .rounded { border-radius: 8px; }
+        .bg-gray-50 { background-color: #f9fafb; }
+        .bg-white { background-color: white; }
+        .p-4 { padding: 16px; }
+        .p-6 { padding: 24px; }
+
+        /* Line clamp utility */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Hover effects */
+        .hover\:shadow-md:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .transition-shadow {
+            transition-property: box-shadow;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .comment-widget {
+                padding: 16px;
+            }
+            
+            .grid-cols-2,
+            .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .space-x-4 > * + * {
+                margin-left: 0;
+                margin-top: 16px;
+            }
+            
+            .flex:not(.bg-white) {
+                flex-direction: column;
+            }
+        }
+
+        /* Icon styles */
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="comment-widget">
+        <div id="comment-widget-container">
+            <!-- Content will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <!-- reCAPTCHA script -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfEwLsrAAAAAIc_nXYEfDT6Bk7Rl2E7_VjMdjn1" async defer></script>
+
+    <script>
+        // Configuration - Update these values for your specific implementation
+        const CONFIG = {
+            // API Configuration
+            apiBaseUrl: getApiBaseUrl(), // Auto-detect API URL based on current domain
+            recaptchaSiteKey: '6LfEwLsrAAAAAIc_nXYEfDT6Bk7Rl2E7_VjMdjn1',
+            
+            // Dynamic Configuration - Will be loaded from API
+            rulemakings: [], // Will be populated from API
+            selectedRulemaking: null, // Currently selected rulemaking
+            apiError: null, // Track API errors
+            
+            // Styling Configuration
+            theme: {
+                primaryColor: '#2fade3',
+                successColor: '#10b981',
+                warningColor: '#f59e0b',
+                errorColor: '#ef4444'
+            }
+        };
+
+        // State management
+        let currentStep = 0; // 0 = loading, 1 = rulemaking selection, 2 = form, 3 = rulemaking details, 4 = generated comment
+        let isLoading = true;
+        let formData = {
+            user_name: '',
+            user_email: '',
+            user_city: '',
+            user_state: '',
+            user_zip: '',
+            personal_story: '',
+            why_it_matters: '',
+            experiences: '',
+            concerns: ''
+        };
+        let generatedComment = '';
+        let submissionId = null;
+        let isGenerating = false;
+        let isEditing = false;
+
+        // Utility functions
+        function getApiBaseUrl() {
+            // Check if we're running in a proper web environment
+            if (window.location.protocol === 'file:') {
+                console.warn('Running from file:// protocol. API calls will not work. Please serve this file through a web server.');
+                return null; // Will trigger fallback behavior
+            }
+            
+            // Use your deployed API URL
+            return 'https://comment-builder-892833260112.us-east1.run.app/api';
+        }
+
+        function formatDate(dateString) {
+            try {
+                // Handle both string dates and object dates with .value property
+                const dateValue = typeof dateString === 'object' && dateString.value ? dateString.value : dateString;
+                
+                // For date-only strings (YYYY-MM-DD), parse them as local dates to avoid timezone issues
+                if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                    const [year, month, day] = dateValue.split('-').map(Number);
+                    const date = new Date(year, month - 1, day); // month is 0-indexed
+                    return date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                } else {
+                    const date = new Date(dateValue);
+                    if (isNaN(date.getTime())) {
+                        console.error('Invalid date string:', dateString);
+                        return 'Invalid date';
+                    }
+                    return date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                }
+            } catch (error) {
+                console.error('Date formatting error:', error);
+                return 'Invalid date';
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            return alertDiv;
+        }
+
+        function showLoading() {
+            return `
+                <div class="text-center py-12">
+                    <div class="loading-spinner mx-auto mb-4"></div>
+                    <p class="text-gray-600">Loading...</p>
+                </div>
+            `;
+        }
+
+        // API functions
+        async function makeApiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const url = `${CONFIG.apiBaseUrl}${endpoint}`;
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    mode: 'cors'
+                };
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(url, options);
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || `API request failed: ${response.status} ${response.statusText}`);
+                }
+
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // Load available rulemakings from API
+        async function loadRulemakings() {
+            try {
+                isLoading = true;
+                render();
+                
+                
+                // Check if API is available
+                if (!CONFIG.apiBaseUrl) {
+                    throw new Error('API not available - running from file:// protocol');
+                }
+                
+                const response = await makeApiCall('/rulemakings');
+                CONFIG.rulemakings = response.rulemakings || [];
+                
+                // Filter out expired rulemakings
+                const now = new Date();
+                CONFIG.rulemakings = CONFIG.rulemakings.filter(rulemaking => {
+                    const deadline = new Date(rulemaking.comment_deadline.value || rulemaking.comment_deadline);
+                    return deadline > now;
+                });
+                
+                // Sort by deadline (soonest first)
+                CONFIG.rulemakings.sort((a, b) => new Date(a.comment_deadline.value || a.comment_deadline) - new Date(b.comment_deadline.value || b.comment_deadline));
+                
+                
+                isLoading = false;
+                currentStep = CONFIG.rulemakings.length > 0 ? 1 : 0;
+                render();
+            } catch (error) {
+                console.error('Error loading rulemakings:', error);
+                isLoading = false;
+                currentStep = 0;
+                
+                // Check if it's a 404 error (API not found)
+                if (error.message.includes('404') || error.message.includes('Not Found')) {
+                    CONFIG.apiError = 'API_NOT_FOUND';
+                } else if (error.message.includes('Unexpected token')) {
+                    CONFIG.apiError = 'API_HTML_RESPONSE';
+                } else {
+                    CONFIG.apiError = 'API_ERROR';
+                }
+                
+                render();
+            }
+        }
+
+        // Select a rulemaking
+        function selectRulemaking(rulemaking) {
+            CONFIG.selectedRulemaking = rulemaking;
+            currentStep = 2; // Go to rulemaking details page
+            render();
+        }
+
+        // reCAPTCHA functions
+        function loadRecaptcha() {
+            return new Promise((resolve, reject) => {
+                if (!CONFIG.recaptchaSiteKey) {
+                    resolve(null);
+                    return;
+                }
+
+                if (window.grecaptcha && window.grecaptcha.ready) {
+                    window.grecaptcha.ready(() => {
+                        window.grecaptcha.execute(CONFIG.recaptchaSiteKey, { action: 'submit' })
+                            .then(resolve)
+                            .catch(reject);
+                    });
+                } else {
+                    setTimeout(() => loadRecaptcha().then(resolve).catch(reject), 100);
+                }
+            });
+        }
+
+        // Form handling
+        function handleInputChange(field, value) {
+            try {
+                console.log('handleInputChange called:', field, value, 'currentStep:', currentStep);
+                formData[field] = value;
+                console.log('formData after update:', formData);
+                
+                // Only update button state, don't re-render the entire form
+                // This prevents losing focus from input fields
+                updateButtonState();
+                
+            } catch (error) {
+                console.error('Error in handleInputChange:', error);
+            }
+        }
+
+        function checkFormValidity() {
+            const button = document.getElementById('generate-btn');
+            if (!button) return;
+            
+            const name = document.querySelector('input[name="user_name"]')?.value || '';
+            const email = document.querySelector('input[name="user_email"]')?.value || '';
+            const city = document.querySelector('input[name="user_city"]')?.value || '';
+            const state = document.querySelector('select[name="user_state"]')?.value || '';
+            const zip = document.querySelector('input[name="user_zip"]')?.value || '';
+            const why = document.querySelector('textarea[name="why_it_matters"]')?.value || '';
+            
+            const isValid = name && email && city && state && zip && why;
+            
+            if (isValid && !isGenerating) {
+                button.removeAttribute('disabled');
+                button.title = 'Click to generate comment';
+            } else {
+                button.setAttribute('disabled', 'disabled');
+                button.title = 'Please fill in all required fields';
+            }
+        }
+
+        function updateButtonState() {
+            console.log('updateButtonState called - currentStep:', currentStep);
+            const button = document.getElementById('generate-btn');
+            console.log('Button found:', !!button);
+            if (!button) {
+                console.log('No button found with id="generate-btn"');
+                return;
+            }
+            
+            const isValid = formData.user_name && 
+                           formData.user_email && 
+                           formData.user_city && 
+                           formData.user_state && 
+                           formData.user_zip && 
+                           formData.why_it_matters;
+            
+            console.log('Form validation result:', isValid);
+            
+            if (isValid && !isGenerating) {
+                button.removeAttribute('disabled');
+                button.title = 'Click to generate comment';
+                console.log('Button enabled - all fields filled');
+            } else {
+                button.setAttribute('disabled', 'disabled');
+                if (isGenerating) {
+                    button.title = 'Generating comment...';
+                } else {
+                    button.title = 'Please fill in all required fields';
+                    console.log('Button disabled - missing fields:', {
+                        user_name: !!formData.user_name,
+                        user_email: !!formData.user_email,
+                        user_city: !!formData.user_city,
+                        user_state: !!formData.user_state,
+                        user_zip: !!formData.user_zip,
+                        why_it_matters: !!formData.why_it_matters
+                    });
+                }
+            }
+        }
+
+        function isFormValid() {
+            return formData.user_name && 
+                   formData.user_email && 
+                   formData.user_city && 
+                   formData.user_state && 
+                   formData.user_zip && 
+                   formData.why_it_matters;
+        }
+
+        function getButtonDisabledAttr() {
+            const isValid = formData.user_name && 
+                           formData.user_email && 
+                           formData.user_city && 
+                           formData.user_state && 
+                           formData.user_zip && 
+                           formData.why_it_matters;
+            return (!isValid || isGenerating) ? 'disabled' : '';
+        }
+
+        function getButtonTitle() {
+            const isValid = formData.user_name && 
+                           formData.user_email && 
+                           formData.user_city && 
+                           formData.user_state && 
+                           formData.user_zip && 
+                           formData.why_it_matters;
+            if (!isValid) return 'Please fill in all required fields';
+            if (isGenerating) return 'Generating comment...';
+            return 'Click to generate comment';
+        }
+
+
+        async function generateComment() {
+            if (!isFormValid()) {
+                alert('Please fill in all required fields: Name, Email, City, State, ZIP, and Why this issue matters to you');
+                return;
+            }
+
+            isGenerating = true;
+            render();
+            // Use setTimeout to ensure DOM is updated before checking button state
+            setTimeout(() => updateButtonState(), 0);
+
+            try {
+                // Get reCAPTCHA token
+                let recaptchaToken = null;
+                if (CONFIG.recaptchaSiteKey) {
+                    try {
+                        recaptchaToken = await loadRecaptcha();
+                    } catch (error) {
+                        console.error('reCAPTCHA error:', error);
+                        alert('reCAPTCHA verification failed. Please refresh and try again.');
+                        isGenerating = false;
+                        render();
+                        return;
+                    }
+                }
+
+                const requestData = {
+                    ...formData,
+                    rulemaking_id: CONFIG.selectedRulemaking.id,
+                    recaptcha_token: recaptchaToken
+                };
+
+                const response = await makeApiCall('/comments/generate', 'POST', requestData);
+                
+                generatedComment = response.generated_comment;
+                submissionId = response.submission_id;
+                currentStep = 4;
+            } catch (error) {
+                alert(`Failed to generate comment: ${error.message}`);
+            } finally {
+                isGenerating = false;
+                render();
+            }
+        }
+
+        async function saveFinalComment() {
+            if (!submissionId) return;
+
+            try {
+                await makeApiCall(`/comments/${submissionId}`, 'PUT', {
+                    final_comment: generatedComment,
+                    submission_status: 'submitted'
+                });
+
+                // Redirect to success page or show success message
+                window.open(`https://your-domain.com/success/${submissionId}`, '_blank');
+            } catch (error) {
+                alert(`Failed to save comment: ${error.message}`);
+            }
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(generatedComment);
+            alert('Comment copied to clipboard!');
+        }
+
+        function openFederalRegister() {
+            if (!submissionId) return;
+
+            // Save comment first
+            saveFinalComment().then(() => {
+                const federalRegisterUrl = `https://www.regulations.gov/commenton/${CONFIG.selectedRulemaking.docket_id}-0001`;
+                window.open(federalRegisterUrl, '_blank');
+            });
+        }
+
+        // Render functions
+        function renderStep0() {
+            if (isLoading) {
+                return showLoading();
+            }
+
+            // Check if API is not available (file:// protocol)
+            if (!CONFIG.apiBaseUrl) {
+                return `
+                    <div class="card">
+                        <div class="text-center">
+                            <h1 class="text-2xl font-bold text-gray-900 mb-4">⚠️ Setup Required</h1>
+                            <div class="alert alert-warning mb-6">
+                                <p class="text-sm">
+                                    <strong>This widget needs to be served through a web server to work properly.</strong><br>
+                                    The widget is currently running from a local file, which prevents API calls due to browser security restrictions.
+                                </p>
+                            </div>
+                            <div class="text-left bg-gray-50 p-4 rounded mb-6">
+                                <h3 class="font-semibold mb-2">To use this widget:</h3>
+                                <ol class="text-sm space-y-1 list-decimal list-inside">
+                                    <li>Upload this HTML file to your web server</li>
+                                    <li>Ensure your API is running and accessible</li>
+                                    <li>Embed the widget in Elementor using the web URL</li>
+                                </ol>
+                            </div>
+                            <p class="text-gray-600 text-sm">
+                                For testing, you can use a local server like Python's http.server or Node.js http-server.
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Check for API errors
+            if (CONFIG.apiError) {
+                let errorMessage = '';
+                let solution = '';
+                
+                switch (CONFIG.apiError) {
+                    case 'API_NOT_FOUND':
+                        errorMessage = 'API endpoint not found (404 error)';
+                        solution = `
+                            <div class="text-left bg-gray-50 p-4 rounded mb-6">
+                                <h3 class="font-semibold mb-2">The API server is not running or not accessible at:</h3>
+                                <p class="text-sm font-mono bg-white p-2 rounded border">${CONFIG.apiBaseUrl}/rulemakings</p>
+                                <h4 class="font-semibold mb-2 mt-4">Solutions:</h4>
+                                <ol class="text-sm space-y-1 list-decimal list-inside">
+                                    <li>Start your API server (Node.js backend)</li>
+                                    <li>Ensure the API is accessible at the correct URL</li>
+                                    <li>Check if the API server is running on a different port</li>
+                                    <li>Verify CORS settings allow requests from this domain</li>
+                                </ol>
+                            </div>
+                        `;
+                        break;
+                    case 'API_HTML_RESPONSE':
+                        errorMessage = 'API returned HTML instead of JSON';
+                        solution = `
+                            <div class="text-left bg-gray-50 p-4 rounded mb-6">
+                                <h3 class="font-semibold mb-2">The API endpoint returned an HTML page instead of JSON data.</h3>
+                                <p class="text-sm">This usually means the API server is not running or the endpoint doesn't exist.</p>
+                                <h4 class="font-semibold mb-2 mt-4">Check:</h4>
+                                <ol class="text-sm space-y-1 list-decimal list-inside">
+                                    <li>Is your Node.js API server running?</li>
+                                    <li>Is the API accessible at: <code class="bg-white px-1 rounded">${CONFIG.apiBaseUrl}/rulemakings</code></li>
+                                    <li>Does the API have the /rulemakings endpoint?</li>
+                                </ol>
+                            </div>
+                        `;
+                        break;
+                    default:
+                        errorMessage = 'API connection failed';
+                        solution = `
+                            <div class="text-left bg-gray-50 p-4 rounded mb-6">
+                                <h3 class="font-semibold mb-2">Unable to connect to the API server.</h3>
+                                <p class="text-sm">Please check that your API server is running and accessible.</p>
+                            </div>
+                        `;
+                }
+                
+                return `
+                    <div class="card">
+                        <div class="text-center">
+                            <h1 class="text-2xl font-bold text-gray-900 mb-4">⚠️ API Connection Error</h1>
+                            <div class="alert alert-error mb-6">
+                                <p class="text-sm">
+                                    <strong>${errorMessage}</strong><br>
+                                    The widget cannot load rulemakings from the API server.
+                                </p>
+                            </div>
+                            ${solution}
+                            <div class="text-center mt-6">
+                                <button onclick="loadRulemakings()" class="btn btn-primary">
+                                    🔄 Try Again
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (CONFIG.rulemakings.length === 0) {
+                return `
+                    <div class="card">
+                        <div class="text-center">
+                            <h1 class="text-2xl font-bold text-gray-900 mb-4">No Active Rulemakings</h1>
+                            <p class="text-gray-600 mb-6">
+                                There are currently no open comment periods. Check back later for new opportunities to make your voice heard.
+                            </p>
+                            <button onclick="loadRulemakings()" class="btn btn-primary">
+                                🔄 Refresh
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="card">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                            Choose a Rulemaking to Comment On
+                        </h1>
+                        <p class="text-lg text-gray-600 mb-6">
+                            Select from the active rulemakings below to create your comment letter.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        ${CONFIG.rulemakings.map(rulemaking => {
+                            const deadlineValue = rulemaking.comment_deadline.value || rulemaking.comment_deadline;
+                            
+                            // For date-only strings (YYYY-MM-DD), parse them as local dates to avoid timezone issues
+                            let deadlineDate;
+                            if (typeof deadlineValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(deadlineValue)) {
+                                const [year, month, day] = deadlineValue.split('-').map(Number);
+                                deadlineDate = new Date(year, month - 1, day); // month is 0-indexed
+                            } else {
+                                deadlineDate = new Date(deadlineValue);
+                            }
+                            
+                            const daysLeft = Math.ceil((deadlineDate - new Date()) / (1000 * 60 * 60 * 24));
+                            
+                            return `
+                                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <h3 class="text-xl font-semibold text-gray-900">${rulemaking.title}</h3>
+                                        <span class="text-sm text-gray-500">${daysLeft} days left</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-2">
+                                        <strong>Agency:</strong> ${rulemaking.agency} | <strong>Docket:</strong> ${rulemaking.docket_id}
+                                    </p>
+                                    <p class="text-sm text-gray-500 mb-4">
+                                        <strong>Deadline:</strong> ${formatDate(rulemaking.comment_deadline)}
+                                    </p>
+                                    ${rulemaking.description ? `
+                                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+                                            ${rulemaking.description.substring(0, 150)}${rulemaking.description.length > 150 ? '...' : ''}
+                                        </p>
+                                    ` : ''}
+                                    <button onclick="selectRulemaking(${JSON.stringify(rulemaking).replace(/"/g, '&quot;')})" 
+                                            class="btn btn-primary w-full">
+                                        Generate Comment Letter
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <div class="text-center mt-8">
+                        <button onclick="loadRulemakings()" class="btn btn-outline">
+                            🔄 Refresh List
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep1() {
+            if (!CONFIG.selectedRulemaking) {
+                return renderStep0();
+            }
+
+            const deadlineDate = new Date(CONFIG.selectedRulemaking.comment_deadline);
+            const isExpired = deadlineDate < new Date();
+
+            if (isExpired) {
+                return `
+                    <div class="card">
+                        <div class="alert alert-error">
+                            <strong>⚠️ Comment Period Closed</strong><br>
+                            The comment period for this rulemaking ended on ${formatDate(CONFIG.selectedRulemaking.comment_deadline)}.
+                        </div>
+                        <div class="text-center mt-6">
+                            <button onclick="goBackToSelection()" class="btn btn-primary">
+                                ← Choose Another Rulemaking
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="card">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                            ${CONFIG.selectedRulemaking.title}
+                        </h1>
+                        <p class="text-lg text-gray-600 mb-6">
+                            <strong>Agency:</strong> ${CONFIG.selectedRulemaking.agency} | <strong>Docket:</strong> ${CONFIG.selectedRulemaking.docket_id}
+                        </p>
+                        <div class="alert alert-warning">
+                            <strong>Deadline:</strong> ${formatDate(CONFIG.selectedRulemaking.comment_deadline)}
+                        </div>
+                    </div>
+
+                    ${CONFIG.selectedRulemaking.description ? `
+                        <div class="mb-8">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">About This Rulemaking</h2>
+                            <div class="bg-gray-50 p-6 rounded">
+                                <p class="text-gray-700 whitespace-pre-wrap">${CONFIG.selectedRulemaking.description}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="text-center">
+                        <button onclick="startCommentProcess()" class="btn btn-primary">
+                            📝 Start Creating Your Comment Letter
+                        </button>
+                        <button onclick="goBackToSelection()" class="btn btn-outline ml-4">
+                            ← Choose Another Rulemaking
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep2() {
+            if (!CONFIG.selectedRulemaking) {
+                return renderStep1();
+            }
+            
+            const rulemaking = CONFIG.selectedRulemaking;
+            const deadlineValue = rulemaking.comment_deadline.value || rulemaking.comment_deadline;
+            
+            // For date-only strings (YYYY-MM-DD), parse them as local dates to avoid timezone issues
+            let deadlineDate;
+            if (typeof deadlineValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(deadlineValue)) {
+                const [year, month, day] = deadlineValue.split('-').map(Number);
+                deadlineDate = new Date(year, month - 1, day); // month is 0-indexed
+            } else {
+                deadlineDate = new Date(deadlineValue);
+            }
+            
+            return `
+                <div class="card">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                            ${rulemaking.title}
+                        </h1>
+                        <p class="text-lg text-gray-600 mb-6">
+                            <strong>Agency:</strong> ${rulemaking.agency} | <strong>Docket:</strong> ${rulemaking.docket_id}
+                        </p>
+                        <div class="alert alert-warning">
+                            <span class="icon">⚠️</span>
+                            <strong>Deadline:</strong> ${formatDate(rulemaking.comment_deadline)}
+                        </div>
+                    </div>
+
+                    ${rulemaking.description ? `
+                        <div class="mb-8">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">About This Rulemaking</h2>
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <p class="text-gray-700 whitespace-pre-wrap">${rulemaking.description}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="text-center">
+                        <div class="flex justify-center gap-4">
+                            <button onclick="goBackToStep1()" class="btn btn-outline">
+                                ← Back to Rulemakings
+                            </button>
+                            <button onclick="startCommentProcess()" class="btn btn-primary">
+                                <span class="icon">📄</span>
+                                Start Creating Your Comment Letter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep3() {
+            return `
+                <div class="card">
+                    <h1 class="text-2xl font-bold text-gray-900 mb-6">Tell Your Story</h1>
+                    <p class="text-gray-600 mb-6">
+                        Share your information and experiences. We'll combine this with our analysis to create a draft comment letter.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <p class="text-sm">
+                            <strong>Important:</strong> This tool creates a draft to help organize your thoughts and speed up the process. 
+                            You will need to review, edit, and personalize the generated letter before submitting it as your own comment 
+                            to the Federal Register. The final letter should reflect your genuine views and experiences.
+                        </p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label class="form-label">Full Name *</label>
+                                <input
+                                    type="text"
+                                    value="${formData.user_name}"
+                                    oninput="handleInputChange('user_name', this.value); checkFormValidity();"
+                                    onchange="handleInputChange('user_name', this.value); checkFormValidity();"
+                                    class="form-input"
+                                    placeholder="Your name"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input
+                                    type="email"
+                                    value="${formData.user_email}"
+                                    oninput="handleInputChange('user_email', this.value); checkFormValidity();"
+                                    onchange="handleInputChange('user_email', this.value)"
+                                    class="form-input"
+                                    placeholder="your.email@example.com"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="form-group">
+                                <label class="form-label">City *</label>
+                                <input
+                                    type="text"
+                                    value="${formData.user_city}"
+                                    oninput="handleInputChange('user_city', this.value); checkFormValidity();"
+                                    onchange="handleInputChange('user_city', this.value)"
+                                    class="form-input"
+                                    placeholder="Your city"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">State *</label>
+                                <input
+                                    type="text"
+                                    value="${formData.user_state}"
+                                    oninput="handleInputChange('user_state', this.value); checkFormValidity();"
+                                    onchange="handleInputChange('user_state', this.value)"
+                                    class="form-input"
+                                    placeholder="Your state"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ZIP Code *</label>
+                                <input
+                                    type="text"
+                                    value="${formData.user_zip}"
+                                    oninput="handleInputChange('user_zip', this.value); checkFormValidity();"
+                                    onchange="handleInputChange('user_zip', this.value)"
+                                    class="form-input"
+                                    placeholder="12345"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Why does this issue matter to you? *</label>
+                            <textarea
+                                value="${formData.why_it_matters}"
+                                oninput="handleInputChange('why_it_matters', this.value); checkFormValidity();"
+                                onchange="handleInputChange('why_it_matters', this.value)"
+                                class="form-textarea"
+                                rows="3"
+                                placeholder="Share why this rulemaking is important to you and your family..."
+                            >${formData.why_it_matters}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Personal experiences (optional)</label>
+                            <textarea
+                                value="${formData.experiences}"
+                                onchange="handleInputChange('experiences', this.value)"
+                                class="form-textarea"
+                                rows="4"
+                                placeholder="Have you or someone you know experienced problems related to this issue? Share your story..."
+                            >${formData.experiences}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Concerns about this rulemaking (optional)</label>
+                            <textarea
+                                value="${formData.concerns}"
+                                onchange="handleInputChange('concerns', this.value)"
+                                class="form-textarea"
+                                rows="3"
+                                placeholder="What worries you most about this proposed rule?"
+                            >${formData.concerns}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Personal story or background (optional)</label>
+                            <textarea
+                                value="${formData.personal_story}"
+                                onchange="handleInputChange('personal_story', this.value)"
+                                class="form-textarea"
+                                rows="3"
+                                placeholder="Tell us about yourself - are you a parent, small business owner, student, retiree? This helps personalize your letter..."
+                            >${formData.personal_story}</textarea>
+                        </div>
+                    </div>
+
+
+                    <div class="flex space-x-4 mt-8">
+                        <button onclick="goBackToStep1()" class="btn btn-outline">
+                            Back
+                        </button>
+                        <button 
+                            id="generate-btn"
+                            class="btn btn-primary flex-1"
+                            onclick="generateComment()"
+                            oninput="checkFormValidity()"
+                        >
+                            ${isGenerating ? `
+                                <div class="loading-spinner"></div>
+                                Generating Your Letter...
+                            ` : `
+                                📤 Generate My Comment Letter
+                            `}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep4() {
+            return `
+                <div class="card">
+                    <div class="flex items-center mb-6 text-green-600">
+                        <span class="icon">✅</span>
+                        <h1 class="text-2xl font-bold ml-2">Your Draft Comment Letter is Ready!</h1>
+                    </div>
+
+                    <div class="alert alert-error">
+                        <h3 class="font-semibold mb-2">⚠️ Important Legal Notice:</h3>
+                        <p class="text-sm">
+                            This is a DRAFT letter created to help organize your thoughts and speed up the comment process. 
+                            You must review, edit, and personalize this content before submitting it as your official comment 
+                            to the Federal Register. Any final submission to the Federal Register must reflect your genuine personal views and experiences. 
+                            NCRC provides this tool solely to assist in organizing public participation in the regulatory process.
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded p-6 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-gray-900">Generated Draft Letter:</h2>
+                            <button
+                                onclick="toggleEditing()"
+                                class="btn ${isEditing ? 'btn-success' : 'btn-primary'}"
+                            >
+                                ${isEditing ? 'Done Editing' : 'Edit Letter'}
+                            </button>
+                        </div>
+                        <div class="bg-white border rounded overflow-hidden">
+                            ${isEditing ? `
+                                <textarea
+                                    value="${generatedComment}"
+                                    onchange="updateGeneratedComment(this.value)"
+                                    class="w-full p-4 text-sm font-sans resize-none focus:outline-none focus:ring-2 focus:ring-opacity-50 min-h-400"
+                                    placeholder="Edit your letter here..."
+                                >${generatedComment}</textarea>
+                            ` : `
+                                <div 
+                                    class="p-4 overflow-y-auto border border-gray-200 rounded"
+                                    style="max-height: 600px; min-height: 200px;"
+                                >
+                                    <div 
+                                        class="text-sm text-gray-800 font-sans whitespace-pre-wrap pb-4"
+                                        style="word-break: break-word; overflow-wrap: break-word; max-width: 100%; width: 100%; line-height: 1.5;"
+                                    >
+                                        ${generatedComment}
+                                    </div>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h3 class="font-semibold mb-2">Required Next Steps:</h3>
+                        <ol class="text-sm space-y-1">
+                            <li><strong>Carefully review</strong> the draft letter above</li>
+                            <li><strong>Edit and personalize</strong> the content to ensure it accurately reflects your views</li>
+                            <li><strong>Add or modify</strong> any details to make it authentically yours</li>
+                            <li>Copy your edited letter to your clipboard</li>
+                            <li>Go to the official Federal Register comment portal and paste your personalized letter</li>
+                        </ol>
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button onclick="copyToClipboard()" class="btn btn-success">
+                            📋 Copy Draft to Clipboard
+                        </button>
+                        <button onclick="openFederalRegister()" class="btn btn-primary">
+                            🔗 Submit to Federal Register Portal
+                        </button>
+                        <button onclick="createAnotherDraft()" class="btn btn-outline">
+                            Create Another Draft
+                        </button>
+                    </div>
+
+                    <div class="mt-8 alert alert-info">
+                        <p class="text-sm">
+                            <strong>Remember:</strong> The comment deadline is ${formatDate(CONFIG.selectedRulemaking.comment_deadline)}. After editing your draft to reflect your personal views, 
+                            submit your personalized comment to help show the agency that real people oppose this rulemaking.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function render() {
+            const container = document.getElementById('comment-widget-container');
+            
+            if (isGenerating) {
+                container.innerHTML = showLoading();
+                return;
+            }
+
+            switch (currentStep) {
+                case 0:
+                    container.innerHTML = renderStep0();
+                    break;
+                case 1:
+                    container.innerHTML = renderStep1();
+                    break;
+                case 2:
+                    container.innerHTML = renderStep2();
+                    break;
+                case 3:
+                    container.innerHTML = renderStep3();
+                    // Use setTimeout to ensure DOM is updated before checking button state
+                    setTimeout(() => updateButtonState(), 0);
+                    break;
+                case 4:
+                    container.innerHTML = renderStep4();
+                    break;
+                default:
+                    container.innerHTML = renderStep0();
+            }
+        }
+
+        // Event handlers
+        function startCommentProcess() {
+            currentStep = 3; // Go to form
+            render();
+        }
+
+        function goBackToStep1() {
+            currentStep = 1;
+            render();
+        }
+
+        function goBackToSelection() {
+            currentStep = 1;
+            CONFIG.selectedRulemaking = null;
+            render();
+        }
+
+        function toggleEditing() {
+            isEditing = !isEditing;
+            render();
+        }
+
+        function updateGeneratedComment(value) {
+            generatedComment = value;
+        }
+
+        function createAnotherDraft() {
+            currentStep = 3; // Go to form
+            generatedComment = '';
+            submissionId = null;
+            isEditing = false;
+            formData = {
+                user_name: formData.user_name, // Keep name
+                user_email: '',
+                user_city: '',
+                user_state: '',
+                user_zip: '',
+                personal_story: '',
+                why_it_matters: '',
+                experiences: '',
+                concerns: ''
+            };
+            render();
+        }
+
+        // Initialize the widget
+        function init() {
+            loadRulemakings();
+        }
+
+        // Start the widget when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
