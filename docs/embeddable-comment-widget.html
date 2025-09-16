@@ -355,6 +355,7 @@
         // State management
         let currentStep = 0; // 0 = loading, 1 = rulemaking selection, 2 = form, 3 = rulemaking details, 4 = generated comment
         let isLoading = true;
+        const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
         let formData = {
             user_name: '',
             user_email: '',
@@ -506,6 +507,11 @@
                 
                 render();
             }
+        }
+
+        function shouldAutoRefresh() {
+            // Refresh only on loading/selection/details views and when not generating
+            return (currentStep === 0 || currentStep === 1 || currentStep === 2) && !isGenerating;
         }
 
         // Select a rulemaking
@@ -1326,10 +1332,23 @@
         // Initialize the widget
         function init() {
             loadRulemakings();
+            // Set up periodic auto-refresh
+            if (!window.rulemakingRefreshInterval) {
+                window.rulemakingRefreshInterval = setInterval(() => {
+                    if (shouldAutoRefresh()) {
+                        loadRulemakings();
+                    }
+                }, AUTO_REFRESH_MS);
+            }
         }
 
         // Start the widget when the page loads
         document.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('beforeunload', () => {
+            if (window.rulemakingRefreshInterval) {
+                clearInterval(window.rulemakingRefreshInterval);
+            }
+        });
     </script>
 </body>
 </html>
