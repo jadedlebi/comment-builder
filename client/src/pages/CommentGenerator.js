@@ -139,6 +139,8 @@ const CommentGenerator = () => {
   };
 
   const generateComment = async () => {
+    console.log('generateComment called');
+    
     // Validate all required fields
     const requiredFields = {
       'Full Name': formData.user_name,
@@ -158,6 +160,7 @@ const CommentGenerator = () => {
       return;
     }
 
+    console.log('Showing legal modal');
     // Show legal disclaimer modal first
     setShowLegalModal(true);
   };
