@@ -2,7 +2,6 @@ import React from 'react';
 import { AlertTriangle, CheckCircle, X } from 'lucide-react';
 
 const LegalDisclaimerModal = ({ isOpen, onClose, onAccept }) => {
-  console.log('LegalDisclaimerModal render - isOpen:', isOpen);
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
@@ -14,6 +13,7 @@ const LegalDisclaimerModal = ({ isOpen, onClose, onAccept }) => {
   return (
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
       onClick={handleBackdropClick}
     >
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -57,13 +57,13 @@ const LegalDisclaimerModal = ({ isOpen, onClose, onAccept }) => {
           <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
             <button
               onClick={onClose}
-              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="btn btn-outline"
             >
               Cancel
             </button>
             <button
               onClick={onAccept}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              className="btn btn-primary flex items-center"
             >
               <CheckCircle size={16} className="mr-2" />
               I Agree & Continue

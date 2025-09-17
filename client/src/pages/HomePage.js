@@ -31,10 +31,8 @@ const HomePage = () => {
   };
 
   const handleSubmitComment = (rulemakingId) => {
-    console.log('Submit Comment button clicked for rulemaking:', rulemakingId);
     setSelectedRulemakingId(rulemakingId);
     setShowLegalModal(true);
-    console.log('Legal modal should be showing now');
   };
 
   const handleLegalModalAccept = () => {
