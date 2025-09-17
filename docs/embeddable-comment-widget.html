@@ -821,18 +821,27 @@
 
 
         async function generateComment() {
+            console.log('Widget generateComment called');
             if (!isFormValid()) {
                 alert('Please fill in all required fields: Name, Email, City, State, ZIP, and Why this issue matters to you');
                 return;
             }
 
+            console.log('Widget showing legal modal');
             // Show legal disclaimer modal first
             showLegalModal();
         }
 
         function showLegalModal() {
+            console.log('Widget showLegalModal called');
             const modal = document.getElementById('legal-modal');
-            modal.classList.remove('hidden');
+            console.log('Modal element found:', modal);
+            if (modal) {
+                modal.classList.remove('hidden');
+                console.log('Modal hidden class removed');
+            } else {
+                console.error('Modal element not found!');
+            }
             
             // Close modal when clicking outside
             modal.addEventListener('click', function(e) {
