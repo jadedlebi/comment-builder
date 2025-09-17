@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar, FileText, AlertCircle, Clock } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import api from '../services/api';
+import LegalDisclaimerModal from '../components/LegalDisclaimerModal';
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [rulemakings, setRulemakings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLegalModal, setShowLegalModal] = useState(false);
+  const [selectedRulemakingId, setSelectedRulemakingId] = useState(null);
 
   useEffect(() => {
     fetchRulemakings();
@@ -24,6 +28,21 @@ const HomePage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmitComment = (rulemakingId) => {
+    setSelectedRulemakingId(rulemakingId);
+    setShowLegalModal(true);
+  };
+
+  const handleLegalModalAccept = () => {
+    setShowLegalModal(false);
+    navigate(`/comment/${selectedRulemakingId}`);
+  };
+
+  const handleLegalModalClose = () => {
+    setShowLegalModal(false);
+    setSelectedRulemakingId(null);
   };
 
   // Helper function to extract date string from BigQuery format
@@ -169,8 +188,8 @@ const HomePage = () => {
                     )}
                   </div>
                   
-                  <Link
-                    to={`/comment/${rulemaking.id}`}
+                  <button
+                    onClick={() => handleSubmitComment(rulemaking.id)}
                     className={`btn ${
                       deadlineInfo.status === 'expired' 
                         ? 'btn-secondary' 
@@ -180,7 +199,7 @@ const HomePage = () => {
                   >
                     <FileText size={16} className="flex-shrink-0" />
                     {deadlineInfo.status === 'expired' ? 'Deadline Passed' : 'Submit Comment'}
-                  </Link>
+                  </button>
                 </div>
 
                 {deadlineInfo.status === 'urgent' && (
@@ -248,6 +267,12 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+      
+      <LegalDisclaimerModal
+        isOpen={showLegalModal}
+        onClose={handleLegalModalClose}
+        onAccept={handleLegalModalAccept}
+      />
     </div>
   );
 };

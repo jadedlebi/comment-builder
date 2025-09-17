@@ -2,7 +2,6 @@ import React from 'react';
 import { AlertTriangle, CheckCircle, X } from 'lucide-react';
 
 const LegalDisclaimerModal = ({ isOpen, onClose, onAccept }) => {
-  console.log('LegalDisclaimerModal render - isOpen:', isOpen);
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {

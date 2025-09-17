@@ -4,7 +4,6 @@ import { Send, FileText, AlertCircle, CheckCircle, Edit3, Copy, ExternalLink } f
 import { format, parseISO } from 'date-fns';
 // reCAPTCHA v3 will be loaded via script tag
 import api from '../services/api';
-import LegalDisclaimerModal from '../components/LegalDisclaimerModal';
 
 const CommentGenerator = () => {
   const { rulemakingId } = useParams();
@@ -17,7 +16,6 @@ const CommentGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
-  const [showLegalModal, setShowLegalModal] = useState(false);
   
   const [formData, setFormData] = useState({
     user_name: '',
@@ -139,8 +137,6 @@ const CommentGenerator = () => {
   };
 
   const generateComment = async () => {
-    console.log('generateComment called');
-    
     // Validate all required fields
     const requiredFields = {
       'Full Name': formData.user_name,
@@ -160,15 +156,9 @@ const CommentGenerator = () => {
       return;
     }
 
-    console.log('Showing legal modal');
-    // Show legal disclaimer modal first
-    setShowLegalModal(true);
-  };
-
-  const handleLegalModalAccept = async () => {
-    setShowLegalModal(false);
+    // Start comment generation directly since user already accepted terms on homepage
     setIsGenerating(true);
-    
+
     try {
       // Execute reCAPTCHA v3 and get token
       let token = null;
@@ -207,8 +197,8 @@ const CommentGenerator = () => {
       setStep(3);
     } catch (err) {
       console.error('Error generating comment:', err);
-      if (err.response && err.response.data) {
-        alert(`Failed to generate comment: ${err.response.data.error || 'Unknown error'}`);
+      if (err.response?.data?.error) {
+        alert(`Failed to generate comment: ${err.response.data.error}`);
       } else {
         alert('Failed to generate comment. Please try again.');
       }
@@ -966,16 +956,7 @@ const CommentGenerator = () => {
     return null;
   };
 
-  return (
-    <>
-      {renderContent()}
-      <LegalDisclaimerModal
-        isOpen={showLegalModal}
-        onClose={() => setShowLegalModal(false)}
-        onAccept={handleLegalModalAccept}
-      />
-    </>
-  );
+  return renderContent();
 };
 
 export default CommentGenerator;
