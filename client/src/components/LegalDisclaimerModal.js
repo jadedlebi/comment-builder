@@ -16,7 +16,7 @@ const LegalDisclaimerModal = ({ isOpen, onClose, onAccept }) => {
       style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
