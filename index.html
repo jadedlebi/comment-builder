@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment Widget - GitHub Pages</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            color: #2fade3;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #6b7280;
+            font-size: 18px;
+        }
+        .widget-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            min-height: 800px;
+        }
+        .instructions {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .instructions h3 {
+            color: #1e40af;
+            margin-top: 0;
+        }
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+        .url-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .url-example {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .url-example h4 {
+            color: #166534;
+            margin-top: 0;
+        }
+        .url-example code {
+            background: #dcfce7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Comment Widget</h1>
+            <p>Embed this widget in your blog posts for focused rulemaking comments</p>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 How to Use This Widget</h3>
+            <p><strong>For Blog Posts:</strong> Add <code>?rulemakingId=UUID</code> to the URL to show a specific rulemaking</p>
+            <p><strong>For General Use:</strong> Use the base URL to show all available rulemakings</p>
+            
+            <div class="url-examples">
+                <div class="url-example">
+                    <h4>🔗 Blog Post URL</h4>
+                    <p>For embedding in blog posts about specific rulemakings:</p>
+                    <div class="code-block">https://yourusername.github.io/your-repo/?rulemakingId=uuid-123-456</div>
+                </div>
+                <div class="url-example">
+                    <h4>📝 Elementor Embedding</h4>
+                    <p>Use this iframe code in Elementor:</p>
+                    <div class="code-block">&lt;iframe src="https://yourusername.github.io/your-repo/?rulemakingId=uuid-123-456" 
+        width="100%" height="800px" frameborder="0"&gt;&lt;/iframe&gt;</div>
+                </div>
+                <div class="url-example">
+                    <h4>🌐 General Widget</h4>
+                    <p>For general use showing all rulemakings:</p>
+                    <div class="code-block">https://yourusername.github.io/your-repo/</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Widget will be loaded here -->
+        <div class="widget-container" id="widget-container">
+            <div style="padding: 40px; text-align: center; color: #6b7280;">
+                <div style="width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid #2fade3; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                Loading widget...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load the widget content
+        fetch('embeddable-comment-widget.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('widget-container').innerHTML = html;
+            })
+            .catch(error => {
+                document.getElementById('widget-container').innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: #dc2626;">
+                        <h3>⚠️ Widget Not Found</h3>
+                        <p>Make sure the embeddable-comment-widget.html file is in the same directory.</p>
+                    </div>
+                `;
+            });
+    </script>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
