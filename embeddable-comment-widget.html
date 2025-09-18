@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.2.4
-    Updated: 2025-01-27 18:00:00
-    Changes: Re-enabled reCAPTCHA after adding domains to reCAPTCHA console - should fix domain validation error
+    CFPB Comment Widget - Version 2.3.1
+    Updated: 2025-01-27 18:30:00
+    Changes: Simplified auto-resize - built into widget, requires small script on parent page for cross-origin resize
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127180000
+    Cache Buster: 20250127183000
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -24,6 +24,23 @@
     -------------------
     <iframe src="https://yourusername.github.io/comment-widget/?rulemakingId=uuid-123-456" 
             width="100%" height="800px" frameborder="0"></iframe>
+    
+    Auto-Resize Setup (Recommended):
+    --------------------------------
+    For dynamic height adjustment, add this small script to your page:
+    
+    <script>
+    window.addEventListener('message', function(e) {
+        if (e.data.type === 'iframeResize') {
+            const iframe = document.querySelector('iframe[src*="jadedlebi.github.io/comment-builder"]');
+            if (iframe && e.source === iframe.contentWindow) {
+                iframe.style.height = Math.max(400, e.data.height) + 'px';
+            }
+        }
+    });
+    </script>
+    
+    Then remove height="800px" from your iframe tag.
 -->
 <html lang="en">
 <head>
@@ -62,6 +79,14 @@
             padding: 20px;
             background: transparent;
             min-height: auto;
+            /* Ensure content fits properly */
+            box-sizing: border-box;
+        }
+        
+        /* Auto-resize CSS - helps with height calculation */
+        body, html {
+            height: auto !important;
+            overflow: visible !important;
         }
 
         /* Cards */
@@ -1553,6 +1578,8 @@
             
             if (isGenerating) {
                 container.innerHTML = showLoading();
+                // Trigger resize after content change
+                setTimeout(debouncedResize, 100);
                 return;
             }
 
@@ -1577,6 +1604,9 @@
                 default:
                     container.innerHTML = renderStep0();
             }
+            
+            // Trigger resize after content change
+            setTimeout(debouncedResize, 100);
         }
 
         // Event handlers
@@ -1624,9 +1654,86 @@
             render();
         }
 
+        // Auto-resize iframe functionality - works automatically in any iframe
+        function resizeIframe() {
+            try {
+                // Get the actual content height
+                const body = document.body;
+                const html = document.documentElement;
+                const height = Math.max(
+                    body.scrollHeight,
+                    body.offsetHeight,
+                    html.clientHeight,
+                    html.scrollHeight,
+                    html.offsetHeight
+                );
+                
+                // Method 1: Send height to parent window (postMessage approach)
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'iframeResize',
+                        height: height + 20 // Add some padding
+                    }, '*');
+                }
+                
+                // Method 2: Try to directly resize parent iframe (if accessible)
+                try {
+                    if (window.frameElement) {
+                        window.frameElement.style.height = (height + 20) + 'px';
+                    }
+                } catch (crossOriginError) {
+                    // This will fail due to cross-origin restrictions, but that's expected
+                }
+                
+            } catch (error) {
+                console.log('Iframe resize not available:', error);
+            }
+        }
+
+        // Debounced resize function to avoid too many calls
+        let resizeTimeout;
+        function debouncedResize() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeIframe, 100);
+        }
+
+        // Simple auto-resize approach - tries multiple methods
+        function setupAutoResize() {
+            // Only run if we're in an iframe
+            if (window.self === window.top) return;
+            
+            // Method 1: Try to access frameElement directly (works if same origin)
+            try {
+                if (window.frameElement) {
+                    const observer = new ResizeObserver(() => {
+                        const height = Math.max(
+                            document.body.scrollHeight,
+                            document.body.offsetHeight,
+                            document.documentElement.clientHeight,
+                            document.documentElement.scrollHeight,
+                            document.documentElement.offsetHeight
+                        );
+                        window.frameElement.style.height = (height + 20) + 'px';
+                    });
+                    observer.observe(document.body);
+                    return; // Success, no need for other methods
+                }
+            } catch (e) {
+                // Cross-origin restriction, try other methods
+            }
+            
+            // Method 2: Use postMessage (requires parent page to listen)
+            // This is a fallback that requires manual setup on the parent page
+        }
+
         // Initialize the widget
         function init() {
             loadRulemakings();
+            
+            // Set up auto-resize for iframe embedding
+            setupAutoResize();
+            setTimeout(resizeIframe, 500); // Initial resize after content loads
+            
             // Set up periodic auto-refresh
             if (!window.rulemakingRefreshInterval) {
                 window.rulemakingRefreshInterval = setInterval(() => {
@@ -1635,6 +1742,15 @@
                     }
                 }, AUTO_REFRESH_MS);
             }
+            
+            // Set up resize observers for postMessage fallback
+            if (window.ResizeObserver) {
+                const resizeObserver = new ResizeObserver(debouncedResize);
+                resizeObserver.observe(document.body);
+            }
+            
+            // Fallback: resize on window resize
+            window.addEventListener('resize', debouncedResize);
         }
 
         // Start the widget when the page loads
