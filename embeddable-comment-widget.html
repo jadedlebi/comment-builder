@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.3.8
-    Updated: 2025-01-27 20:15:00
-    Changes: FINAL BUTTON FIX - Fixed conflicting validation functions, button now works properly, heights determined
+    CFPB Comment Widget - Version 2.3.9
+    Updated: 2025-01-27 20:30:00
+    Changes: Re-enabled height measurement to test Step 4 (generated comment) height
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127201500
+    Cache Buster: 20250127203000
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -1557,25 +1557,24 @@
 
         let lastRenderedStep = -1;
         
-        // Height measurement function - disabled after testing
+        // Height measurement function - re-enabled for complete testing
         function measureAndLogHeight(stepName) {
-            // Disabled to reduce console noise
-            // setTimeout(() => {
-            //     const body = document.body;
-            //     const html = document.documentElement;
-            //     const height = Math.max(
-            //         body.scrollHeight,
-            //         body.offsetHeight,
-            //         html.clientHeight,
-            //         html.scrollHeight,
-            //         html.offsetHeight
-            //     );
-            //     console.log(`📏 ${stepName} HEIGHT: ${height}px`);
-            //     console.log(`📏 Body scrollHeight: ${body.scrollHeight}px`);
-            //     console.log(`📏 Body offsetHeight: ${body.offsetHeight}px`);
-            //     console.log(`📏 HTML scrollHeight: ${html.scrollHeight}px`);
-            //     console.log('---');
-            // }, 100); // Wait for DOM to update
+            setTimeout(() => {
+                const body = document.body;
+                const html = document.documentElement;
+                const height = Math.max(
+                    body.scrollHeight,
+                    body.offsetHeight,
+                    html.clientHeight,
+                    html.scrollHeight,
+                    html.offsetHeight
+                );
+                console.log(`📏 ${stepName} HEIGHT: ${height}px`);
+                console.log(`📏 Body scrollHeight: ${body.scrollHeight}px`);
+                console.log(`📏 Body offsetHeight: ${body.offsetHeight}px`);
+                console.log(`📏 HTML scrollHeight: ${html.scrollHeight}px`);
+                console.log('---');
+            }, 100); // Wait for DOM to update
         }
         
         function render() {
