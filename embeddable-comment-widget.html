@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.3.3
-    Updated: 2025-01-27 19:00:00
-    Changes: Aggressive loop prevention - 50px min change, 3 max attempts, permanent disable after loops, debug logging
+    CFPB Comment Widget - Version 2.3.5
+    Updated: 2025-01-27 19:30:00
+    Changes: Added height measurement logging to determine exact heights for each step
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127190000
+    Cache Buster: 20250127193000
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -1575,16 +1575,33 @@
 
         let lastRenderedStep = -1;
         
+        // Height measurement function
+        function measureAndLogHeight(stepName) {
+            setTimeout(() => {
+                const body = document.body;
+                const html = document.documentElement;
+                const height = Math.max(
+                    body.scrollHeight,
+                    body.offsetHeight,
+                    html.clientHeight,
+                    html.scrollHeight,
+                    html.offsetHeight
+                );
+                console.log(`📏 ${stepName} HEIGHT: ${height}px`);
+                console.log(`📏 Body scrollHeight: ${body.scrollHeight}px`);
+                console.log(`📏 Body offsetHeight: ${body.offsetHeight}px`);
+                console.log(`📏 HTML scrollHeight: ${html.scrollHeight}px`);
+                console.log('---');
+            }, 100); // Wait for DOM to update
+        }
+        
         function render() {
             const container = document.getElementById('comment-widget-container');
             
             if (isGenerating) {
                 container.innerHTML = showLoading();
-                // Only resize if we weren't generating before
-                if (lastRenderedStep !== 'generating') {
-                    setTimeout(debouncedResize, 500);
-                    lastRenderedStep = 'generating';
-                }
+                lastRenderedStep = 'generating';
+                measureAndLogHeight('GENERATING');
                 return;
             }
 
@@ -1594,30 +1611,32 @@
             switch (currentStep) {
                 case 0:
                     container.innerHTML = renderStep0();
+                    measureAndLogHeight('STEP 0 (Loading/Selection)');
                     break;
                 case 1:
                     container.innerHTML = renderStep1();
+                    measureAndLogHeight('STEP 1 (Rulemaking Selection)');
                     break;
                 case 2:
                     container.innerHTML = renderStep2();
+                    measureAndLogHeight('STEP 2 (Rulemaking Details)');
                     break;
                 case 3:
                     container.innerHTML = renderStep3();
+                    measureAndLogHeight('STEP 3 (Form)');
                     // Use setTimeout to ensure DOM is updated before checking button state
                     setTimeout(() => updateButtonState(), 0);
                     break;
                 case 4:
                     container.innerHTML = renderStep4();
+                    measureAndLogHeight('STEP 4 (Generated Comment)');
                     break;
                 default:
                     container.innerHTML = renderStep0();
+                    measureAndLogHeight('STEP DEFAULT');
             }
             
-            // Only trigger resize if step actually changed
-            if (stepChanged) {
-                setTimeout(debouncedResize, 500);
-                lastRenderedStep = currentStep;
-            }
+            lastRenderedStep = currentStep;
         }
 
         // Event handlers
@@ -1784,9 +1803,9 @@
         function init() {
             loadRulemakings();
             
-            // Set up auto-resize for iframe embedding
-            setupAutoResize();
-            setTimeout(resizeIframe, 500); // Initial resize after content loads
+            // DISABLE auto-resize entirely to prevent infinite loops
+            // setupAutoResize();
+            // setTimeout(resizeIframe, 500); // Initial resize after content loads
             
             // Set up periodic auto-refresh
             if (!window.rulemakingRefreshInterval) {
@@ -1797,14 +1816,8 @@
                 }, AUTO_REFRESH_MS);
             }
             
-            // Disable ResizeObserver to prevent infinite loops - only trigger on specific events
-            // if (window.ResizeObserver) {
-            //     const resizeObserver = new ResizeObserver(debouncedResize);
-            //     resizeObserver.observe(document.body);
-            // }
-            
-            // Fallback: resize on window resize
-            window.addEventListener('resize', debouncedResize);
+            // All resize functionality disabled
+            // window.addEventListener('resize', debouncedResize);
         }
 
         // Start the widget when the page loads
