@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.3.7
-    Updated: 2025-01-27 20:00:00
-    Changes: CRITICAL FIX - Added missing name attributes to form fields so button validation works properly
+    CFPB Comment Widget - Version 2.3.8
+    Updated: 2025-01-27 20:15:00
+    Changes: FINAL BUTTON FIX - Fixed conflicting validation functions, button now works properly, heights determined
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127200000
+    Cache Buster: 20250127201500
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -843,33 +843,13 @@
         }
 
         function checkFormValidity() {
-            const button = document.getElementById('generate-btn');
-            if (!button) return;
-            
-            const name = document.querySelector('input[name="user_name"]')?.value || '';
-            const email = document.querySelector('input[name="user_email"]')?.value || '';
-            const city = document.querySelector('input[name="user_city"]')?.value || '';
-            const state = document.querySelector('select[name="user_state"]')?.value || '';
-            const zip = document.querySelector('input[name="user_zip"]')?.value || '';
-            const why = document.querySelector('textarea[name="why_it_matters"]')?.value || '';
-            
-            const isValid = name && email && city && state && zip && why;
-            
-            if (isValid && !isGenerating) {
-                button.removeAttribute('disabled');
-                button.title = 'Click to generate comment';
-            } else {
-                button.setAttribute('disabled', 'disabled');
-                button.title = 'Please fill in all required fields';
-            }
+            // Use the updated validation function instead
+            updateButtonState();
         }
 
         function updateButtonState() {
-            console.log('updateButtonState called - currentStep:', currentStep);
             const button = document.getElementById('generate-btn');
-            console.log('Button found:', !!button);
             if (!button) {
-                console.log('No button found with id="generate-btn"');
                 return;
             }
             
@@ -883,27 +863,19 @@
             
             const isValid = name && email && city && state && zip && why;
             
-            console.log('Form validation result:', isValid);
-            console.log('Field values:', { name, email, city, state, zip, why_length: why.length });
+            // Debug logging disabled after testing
+            // console.log('Form validation result:', isValid);
+            // console.log('Field values:', { name, email, city, state, zip, why_length: why.length });
             
             if (isValid && !isGenerating) {
                 button.removeAttribute('disabled');
                 button.title = 'Click to generate comment';
-                console.log('Button enabled - all fields filled');
             } else {
                 button.setAttribute('disabled', 'disabled');
                 if (isGenerating) {
                     button.title = 'Generating comment...';
                 } else {
                     button.title = 'Please fill in all required fields';
-                    console.log('Button disabled - missing fields:', {
-                        user_name: !!name,
-                        user_email: !!email,
-                        user_city: !!city,
-                        user_state: !!state,
-                        user_zip: !!zip,
-                        why_it_matters: !!why
-                    });
                 }
             }
         }
@@ -1585,24 +1557,25 @@
 
         let lastRenderedStep = -1;
         
-        // Height measurement function
+        // Height measurement function - disabled after testing
         function measureAndLogHeight(stepName) {
-            setTimeout(() => {
-                const body = document.body;
-                const html = document.documentElement;
-                const height = Math.max(
-                    body.scrollHeight,
-                    body.offsetHeight,
-                    html.clientHeight,
-                    html.scrollHeight,
-                    html.offsetHeight
-                );
-                console.log(`📏 ${stepName} HEIGHT: ${height}px`);
-                console.log(`📏 Body scrollHeight: ${body.scrollHeight}px`);
-                console.log(`📏 Body offsetHeight: ${body.offsetHeight}px`);
-                console.log(`📏 HTML scrollHeight: ${html.scrollHeight}px`);
-                console.log('---');
-            }, 100); // Wait for DOM to update
+            // Disabled to reduce console noise
+            // setTimeout(() => {
+            //     const body = document.body;
+            //     const html = document.documentElement;
+            //     const height = Math.max(
+            //         body.scrollHeight,
+            //         body.offsetHeight,
+            //         html.clientHeight,
+            //         html.scrollHeight,
+            //         html.offsetHeight
+            //     );
+            //     console.log(`📏 ${stepName} HEIGHT: ${height}px`);
+            //     console.log(`📏 Body scrollHeight: ${body.scrollHeight}px`);
+            //     console.log(`📏 Body offsetHeight: ${body.offsetHeight}px`);
+            //     console.log(`📏 HTML scrollHeight: ${html.scrollHeight}px`);
+            //     console.log('---');
+            // }, 100); // Wait for DOM to update
         }
         
         function render() {
