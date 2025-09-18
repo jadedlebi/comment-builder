@@ -1043,6 +1043,14 @@
         async function saveFinalComment() {
             if (!submissionId) return;
 
+            // If currently editing, get the latest content from the textarea
+            if (isEditing) {
+                const textarea = document.getElementById('edit-textarea');
+                if (textarea) {
+                    generatedComment = textarea.value;
+                }
+            }
+
             try {
                 await makeApiCall(`/comments/${submissionId}`, 'PUT', {
                     final_comment: generatedComment,
@@ -1057,8 +1065,36 @@
         }
 
         function copyToClipboard() {
-            navigator.clipboard.writeText(generatedComment);
-            alert('Comment copied to clipboard!');
+            // If currently editing, get the latest content from the textarea
+            if (isEditing) {
+                const textarea = document.getElementById('edit-textarea');
+                if (textarea) {
+                    generatedComment = textarea.value;
+                }
+            }
+            
+            if (!generatedComment || generatedComment.trim() === '') {
+                alert('No comment content to copy. Please generate a comment first.');
+                return;
+            }
+            
+            navigator.clipboard.writeText(generatedComment).then(() => {
+                alert('Comment copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy to clipboard:', err);
+                // Fallback method for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = generatedComment;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Comment copied to clipboard!');
+                } catch (fallbackErr) {
+                    alert('Failed to copy to clipboard. Please select and copy the text manually.');
+                }
+                document.body.removeChild(textArea);
+            });
         }
 
         function openFederalRegister() {
@@ -1553,11 +1589,13 @@
                         <div class="bg-white border rounded overflow-hidden">
                             ${isEditing ? `
                                 <textarea
-                                    value="${generatedComment}"
+                                    id="edit-textarea"
+                                    oninput="updateGeneratedComment(this.value)"
                                     onchange="updateGeneratedComment(this.value)"
                                     class="w-full p-4 text-sm font-sans resize-none focus:outline-none focus:ring-2 focus:ring-opacity-50 min-h-400"
                                     placeholder="Edit your letter here..."
-                                >${generatedComment}</textarea>
+                                    style="min-height: 400px;"
+                                >${generatedComment || ''}</textarea>
                             ` : `
                                 <div 
                                     class="p-4 overflow-y-auto border border-gray-200 rounded"
@@ -1567,7 +1605,7 @@
                                         class="text-sm text-gray-800 font-sans whitespace-pre-wrap pb-4"
                                         style="word-break: break-word; overflow-wrap: break-word; max-width: 100%; width: 100%; line-height: 1.5;"
                                     >
-                                        ${generatedComment}
+                                        ${generatedComment || 'No content available'}
                                     </div>
                                 </div>
                             `}
@@ -1664,6 +1702,13 @@
                     setTimeout(() => updateButtonState(), 0);
                     break;
                 case 4:
+                    // Preserve content if currently editing before re-rendering
+                    if (isEditing) {
+                        const existingTextarea = document.getElementById('edit-textarea');
+                        if (existingTextarea && existingTextarea.value) {
+                            generatedComment = existingTextarea.value;
+                        }
+                    }
                     container.innerHTML = renderStep4();
                     measureAndLogHeight('STEP 4 (Generated Comment)');
                     break;
@@ -1697,12 +1742,36 @@
         }
 
         function toggleEditing() {
+            // If currently editing, save the content before toggling
+            if (isEditing) {
+                const textarea = document.getElementById('edit-textarea');
+                if (textarea) {
+                    generatedComment = textarea.value;
+                }
+            }
+            
             isEditing = !isEditing;
             render();
+            
+            // If switching to edit mode, focus the textarea after render
+            if (isEditing) {
+                setTimeout(() => {
+                    const textarea = document.getElementById('edit-textarea');
+                    if (textarea) {
+                        textarea.focus();
+                        // Place cursor at end of content
+                        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                    }
+                }, 100);
+            }
         }
 
         function updateGeneratedComment(value) {
-            generatedComment = value;
+            // Ensure we always have a string value, even if empty
+            generatedComment = value || '';
+            
+            // Debug logging (can be removed in production)
+            console.log('Updated generated comment, length:', generatedComment.length);
         }
 
         function createAnotherDraft() {
