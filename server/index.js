@@ -105,7 +105,7 @@ app.use(cors({
 // Rate limiting (disabled for development)
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'development' ? 0 : (parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100), // disable rate limiting in development
+  max: process.env.NODE_ENV === 'development' ? 0 : (parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000), // increased for widget testing
   message: {
     error: 'Too many requests from this IP, please try again later.'
   },
