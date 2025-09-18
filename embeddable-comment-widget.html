@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.3.5
-    Updated: 2025-01-27 19:30:00
-    Changes: Added height measurement logging to determine exact heights for each step
+    CFPB Comment Widget - Version 2.3.6
+    Updated: 2025-01-27 19:45:00
+    Changes: Fixed button validation bug - reads DOM values instead of formData, determined optimal height is 1700px
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127193000
+    Cache Buster: 20250127194500
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -873,14 +873,18 @@
                 return;
             }
             
-            const isValid = formData.user_name && 
-                           formData.user_email && 
-                           formData.user_city && 
-                           formData.user_state && 
-                           formData.user_zip && 
-                           formData.why_it_matters;
+            // Get current form values from DOM instead of formData
+            const name = document.querySelector('input[name="user_name"]')?.value?.trim() || '';
+            const email = document.querySelector('input[name="user_email"]')?.value?.trim() || '';
+            const city = document.querySelector('input[name="user_city"]')?.value?.trim() || '';
+            const state = document.querySelector('input[name="user_state"]')?.value?.trim() || '';
+            const zip = document.querySelector('input[name="user_zip"]')?.value?.trim() || '';
+            const why = document.querySelector('textarea[name="why_it_matters"]')?.value?.trim() || '';
+            
+            const isValid = name && email && city && state && zip && why;
             
             console.log('Form validation result:', isValid);
+            console.log('Field values:', { name, email, city, state, zip, why_length: why.length });
             
             if (isValid && !isGenerating) {
                 button.removeAttribute('disabled');
@@ -893,12 +897,12 @@
                 } else {
                     button.title = 'Please fill in all required fields';
                     console.log('Button disabled - missing fields:', {
-                        user_name: !!formData.user_name,
-                        user_email: !!formData.user_email,
-                        user_city: !!formData.user_city,
-                        user_state: !!formData.user_state,
-                        user_zip: !!formData.user_zip,
-                        why_it_matters: !!formData.why_it_matters
+                        user_name: !!name,
+                        user_email: !!email,
+                        user_city: !!city,
+                        user_state: !!state,
+                        user_zip: !!zip,
+                        why_it_matters: !!why
                     });
                 }
             }
