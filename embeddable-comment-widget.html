@@ -711,8 +711,8 @@
                             // Rulemaking is expired - show expired message
                             currentStep = 2; // Go to details page which will show expired state
                         } else {
-                            // Rulemaking is active - go directly to details page
-                            currentStep = 2; // Skip selection, go to details
+                            // Rulemaking is active - show legal disclaimer first, then details
+                            currentStep = 1; // Go to selection step which will trigger legal disclaimer
                         }
                         
                         isLoading = false;
@@ -1184,6 +1184,14 @@
         function renderStep1() {
             if (!CONFIG.selectedRulemaking) {
                 return renderStep0();
+            }
+
+            // If we have a specific rulemaking from URL parameter, show legal disclaimer first
+            if (CONFIG.specificRulemakingId && CONFIG.selectedRulemaking) {
+                // Use setTimeout to ensure DOM is rendered before showing modal
+                setTimeout(() => {
+                    showLegalModal();
+                }, 100);
             }
 
             const deadlineDate = new Date(CONFIG.selectedRulemaking.comment_deadline);
