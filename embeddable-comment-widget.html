@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.3.9
-    Updated: 2025-01-27 20:30:00
-    Changes: Re-enabled height measurement to test Step 4 (generated comment) height
+    CFPB Comment Widget - Version 2.4.0 - FINAL
+    Updated: 2025-01-27 20:45:00
+    Changes: Height testing complete - optimal iframe height determined as 1700px, button validation fixed
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127203000
+    Cache Buster: 20250127204500
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -25,22 +25,27 @@
     <iframe src="https://yourusername.github.io/comment-widget/?rulemakingId=uuid-123-456" 
             width="100%" height="800px" frameborder="0"></iframe>
     
-    Auto-Resize Setup (Recommended):
-    --------------------------------
-    For dynamic height adjustment, add this small script to your page:
+    Step-Based Height Adjustment (Recommended):
+    ------------------------------------------
+    For step-specific height adjustment, add this script to your Elementor page:
     
     <script>
     window.addEventListener('message', function(e) {
         if (e.data.type === 'iframeResize') {
             const iframe = document.querySelector('iframe[src*="jadedlebi.github.io/comment-builder"]');
             if (iframe && e.source === iframe.contentWindow) {
-                iframe.style.height = Math.max(400, e.data.height) + 'px';
+                iframe.style.height = e.data.height + 'px';
+                iframe.style.transition = 'height 0.3s ease-in-out';
+                console.log('Iframe resized to Step ' + e.data.step + ': ' + e.data.height + 'px');
             }
         }
     });
     </script>
     
-    Then remove height="800px" from your iframe tag.
+    <iframe src="https://jadedlebi.github.io/comment-builder/?rulemakingId=uuid-123-456" 
+            width="100%" style="border: none; height: 650px;" frameborder="0"></iframe>
+    
+    Heights: Step 1=650px, Step 2=850px, Step 3=1700px, Step 4=1600px
 -->
 <html lang="en">
 <head>
@@ -1557,24 +1562,25 @@
 
         let lastRenderedStep = -1;
         
-        // Height measurement function - re-enabled for complete testing
+        // Height measurement function - testing complete, measurements determined
         function measureAndLogHeight(stepName) {
-            setTimeout(() => {
-                const body = document.body;
-                const html = document.documentElement;
-                const height = Math.max(
-                    body.scrollHeight,
-                    body.offsetHeight,
-                    html.clientHeight,
-                    html.scrollHeight,
-                    html.offsetHeight
-                );
-                console.log(`📏 ${stepName} HEIGHT: ${height}px`);
-                console.log(`📏 Body scrollHeight: ${body.scrollHeight}px`);
-                console.log(`📏 Body offsetHeight: ${body.offsetHeight}px`);
-                console.log(`📏 HTML scrollHeight: ${html.scrollHeight}px`);
-                console.log('---');
-            }, 100); // Wait for DOM to update
+            // Height testing complete - optimal height is 1700px (Step 3 = 1670px + 30px margin)
+            // setTimeout(() => {
+            //     const body = document.body;
+            //     const html = document.documentElement;
+            //     const height = Math.max(
+            //         body.scrollHeight,
+            //         body.offsetHeight,
+            //         html.clientHeight,
+            //         html.scrollHeight,
+            //         html.offsetHeight
+            //     );
+            //     console.log(`📏 ${stepName} HEIGHT: ${height}px`);
+            //     console.log(`📏 Body scrollHeight: ${body.scrollHeight}px`);
+            //     console.log(`📏 Body offsetHeight: ${body.offsetHeight}px`);
+            //     console.log(`📏 HTML scrollHeight: ${html.scrollHeight}px`);
+            //     console.log('---');
+            // }, 100); // Wait for DOM to update
         }
         
         function render() {
@@ -1582,6 +1588,7 @@
             
             if (isGenerating) {
                 container.innerHTML = showLoading();
+                resizeToStepHeight('generating');
                 lastRenderedStep = 'generating';
                 measureAndLogHeight('GENERATING');
                 return;
@@ -1618,6 +1625,10 @@
                     measureAndLogHeight('STEP DEFAULT');
             }
             
+            // Trigger step-based resize if step changed
+            if (stepChanged) {
+                setTimeout(() => resizeToStepHeight(currentStep), 100);
+            }
             lastRenderedStep = currentStep;
         }
 
@@ -1666,82 +1677,32 @@
             render();
         }
 
-        // Auto-resize iframe functionality with aggressive loop prevention
-        let lastSentHeight = 0;
-        let resizeCount = 0;
-        let resizeDisabled = false;
-        const MAX_RESIZE_ATTEMPTS = 3; // Reduced from 5 to 3
-        const MIN_HEIGHT_CHANGE = 50; // Increased from 10px to 50px
+        // Step-based height adjustment - sends specific height for each step
+        const STEP_HEIGHTS = {
+            0: 650,   // Loading/Selection
+            1: 650,   // Rulemaking Selection  
+            2: 850,   // Rulemaking Details
+            3: 1700,  // Form (tallest)
+            4: 1600,  // Generated Comment
+            'generating': 650  // Loading state
+        };
         
-        function resizeIframe() {
+        function resizeToStepHeight(step) {
             try {
-                // If resize is disabled due to too many attempts, don't continue
-                if (resizeDisabled) {
-                    console.log('Auto-resize disabled due to loop prevention');
-                    return;
-                }
-                
-                // Prevent excessive resize attempts
-                if (resizeCount > MAX_RESIZE_ATTEMPTS) {
-                    console.log('Max resize attempts reached, disabling auto-resize');
-                    resizeDisabled = true;
-                    return;
-                }
-                
-                // Get the actual content height
-                const body = document.body;
-                const html = document.documentElement;
-                const height = Math.max(
-                    body.scrollHeight,
-                    body.offsetHeight,
-                    html.clientHeight,
-                    html.scrollHeight,
-                    html.offsetHeight
-                );
-                
-                console.log('Current height:', height, 'Last sent:', lastSentHeight, 'Diff:', Math.abs(height - lastSentHeight));
-                
-                // Only send if height changed significantly (prevent micro-adjustments)
-                const heightDiff = Math.abs(height - lastSentHeight);
-                if (heightDiff < MIN_HEIGHT_CHANGE) {
-                    console.log('Height change too small, skipping resize');
-                    return; // Skip if change is less than 50px
-                }
-                
-                // Cap maximum height to prevent infinite expansion
-                const maxHeight = 1500; // Reduced from 2000 to 1500
-                const cappedHeight = Math.min(height, maxHeight);
-                
-                // Method 1: Send height to parent window (postMessage approach)
+                // Only run if we're in an iframe
                 if (window.parent && window.parent !== window) {
-                    console.log('Sending resize message:', cappedHeight + 20);
+                    const targetHeight = STEP_HEIGHTS[step] || 1700; // Default to max height
+                    
+                    console.log(`📐 Resizing to Step ${step}: ${targetHeight}px`);
+                    
                     window.parent.postMessage({
                         type: 'iframeResize',
-                        height: cappedHeight + 20 // Add some padding
+                        height: targetHeight,
+                        step: step
                     }, '*');
-                    
-                    lastSentHeight = cappedHeight;
-                    resizeCount++;
-                    
-                    // Reset counter after a longer delay
-                    setTimeout(() => {
-                        if (resizeCount > 0) {
-                            resizeCount--;
-                        }
-                    }, 3000); // Increased from 1000ms to 3000ms
                 }
-                
-                // Disable Method 2 entirely to prevent conflicts
-                // try {
-                //     if (window.frameElement) {
-                //         window.frameElement.style.height = (cappedHeight + 20) + 'px';
-                //     }
-                // } catch (crossOriginError) {
-                //     // This will fail due to cross-origin restrictions, but that's expected
-                // }
-                
             } catch (error) {
-                console.log('Iframe resize not available:', error);
+                console.log('Step-based resize not available:', error);
             }
         }
 
