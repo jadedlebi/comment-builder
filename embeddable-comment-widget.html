@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.2.1
-    Updated: 2025-01-27 17:15:00
-    Changes: Fixed iframe embedding background display issue - removed body gradient, added white background to container
+    CFPB Comment Widget - Version 2.2.2
+    Updated: 2025-01-27 17:30:00
+    Changes: Enhanced iframe background fix - forced transparent backgrounds with !important, removed all background colors
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127171500
+    Cache Buster: 20250127173000
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -42,11 +42,17 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background: transparent;
-            margin: 0;
-            padding: 0;
+            background: transparent !important;
+            background-color: transparent !important;
+            margin: 0 !important;
+            padding: 0 !important;
             color: #1e293b;
             line-height: 1.6;
+        }
+
+        html {
+            background: transparent !important;
+            background-color: transparent !important;
         }
 
         /* Container */
@@ -54,8 +60,8 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background: #ffffff;
-            min-height: 100%;
+            background: transparent;
+            min-height: auto;
         }
 
         /* Cards */
