@@ -903,6 +903,12 @@
 
 
         async function generateComment() {
+            // Check if button is disabled (prevents clicks on disabled button)
+            const button = document.getElementById('generate-btn');
+            if (button && button.disabled) {
+                return;
+            }
+
             if (!isFormValid()) {
                 alert('Please fill in all required fields: Name, Email, City, State, ZIP, and Why this issue matters to you');
                 return;
@@ -1335,7 +1341,7 @@
                                     type="email"
                                     value="${formData.user_email}"
                                     oninput="handleInputChange('user_email', this.value); checkFormValidity();"
-                                    onchange="handleInputChange('user_email', this.value)"
+                                    onchange="handleInputChange('user_email', this.value); checkFormValidity();"
                                     class="form-input"
                                     placeholder="your.email@example.com"
                                 />
@@ -1349,7 +1355,7 @@
                                     type="text"
                                     value="${formData.user_city}"
                                     oninput="handleInputChange('user_city', this.value); checkFormValidity();"
-                                    onchange="handleInputChange('user_city', this.value)"
+                                    onchange="handleInputChange('user_city', this.value); checkFormValidity();"
                                     class="form-input"
                                     placeholder="Your city"
                                 />
@@ -1360,7 +1366,7 @@
                                     type="text"
                                     value="${formData.user_state}"
                                     oninput="handleInputChange('user_state', this.value); checkFormValidity();"
-                                    onchange="handleInputChange('user_state', this.value)"
+                                    onchange="handleInputChange('user_state', this.value); checkFormValidity();"
                                     class="form-input"
                                     placeholder="Your state"
                                 />
@@ -1371,7 +1377,7 @@
                                     type="text"
                                     value="${formData.user_zip}"
                                     oninput="handleInputChange('user_zip', this.value); checkFormValidity();"
-                                    onchange="handleInputChange('user_zip', this.value)"
+                                    onchange="handleInputChange('user_zip', this.value); checkFormValidity();"
                                     class="form-input"
                                     placeholder="12345"
                                 />
@@ -1383,7 +1389,7 @@
                             <textarea
                                 value="${formData.why_it_matters}"
                                 oninput="handleInputChange('why_it_matters', this.value); checkFormValidity();"
-                                onchange="handleInputChange('why_it_matters', this.value)"
+                                onchange="handleInputChange('why_it_matters', this.value); checkFormValidity();"
                                 class="form-textarea"
                                 rows="3"
                                 placeholder="Share why this rulemaking is important to you and your family..."
@@ -1433,7 +1439,8 @@
                             id="generate-btn"
                             class="btn btn-primary flex-1"
                             onclick="generateComment()"
-                            oninput="checkFormValidity()"
+                            ${getButtonDisabledAttr()}
+                            title="${getButtonTitle()}"
                         >
                             ${isGenerating ? `
                                 <div class="loading-spinner"></div>
