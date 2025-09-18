@@ -25,7 +25,8 @@ const AdminDashboard = () => {
     docket: '',
     comment_deadline: '',
     description: '',
-    ncrc_comment_letter: ''
+    ncrc_comment_letter: '',
+    federal_register_url: ''
   });
   const [editRulemaking, setEditRulemaking] = useState({
     title: '',
@@ -33,7 +34,8 @@ const AdminDashboard = () => {
     docket: '',
     comment_deadline: '',
     description: '',
-    ncrc_comment_letter: ''
+    ncrc_comment_letter: '',
+    federal_register_url: ''
   });
   
   const { user, logout } = useAuth();
@@ -173,6 +175,7 @@ const AdminDashboard = () => {
         comment_deadline: newRulemaking.comment_deadline ? new Date(newRulemaking.comment_deadline).toISOString() : null,
         description: newRulemaking.description,
         ncrc_comment_letter: newRulemaking.ncrc_comment_letter,
+        federal_register_url: newRulemaking.federal_register_url,
         status: 'active' // Add required status field
       };
       
@@ -185,7 +188,8 @@ const AdminDashboard = () => {
         docket: '',
         comment_deadline: '',
         description: '',
-        ncrc_comment_letter: ''
+        ncrc_comment_letter: '',
+        federal_register_url: ''
       });
       showNotification('Rulemaking created successfully!', 'success');
     } catch (err) {
@@ -208,7 +212,8 @@ const AdminDashboard = () => {
       docket: rulemaking.docket_id,
       comment_deadline: getDateString(rulemaking.comment_deadline),
       description: rulemaking.description || '',
-      ncrc_comment_letter: rulemaking.ncrc_comment_letter || ''
+      ncrc_comment_letter: rulemaking.ncrc_comment_letter || '',
+      federal_register_url: rulemaking.federal_register_url || ''
     });
     setShowEditModal(true);
   };
@@ -224,6 +229,7 @@ const AdminDashboard = () => {
         comment_deadline: editRulemaking.comment_deadline ? new Date(editRulemaking.comment_deadline).toISOString() : null,
         description: editRulemaking.description,
         ncrc_comment_letter: editRulemaking.ncrc_comment_letter,
+        federal_register_url: editRulemaking.federal_register_url,
         status: 'active' // Add required status field
       };
       
@@ -237,7 +243,8 @@ const AdminDashboard = () => {
         docket: '',
         comment_deadline: '',
         description: '',
-        ncrc_comment_letter: ''
+        ncrc_comment_letter: '',
+        federal_register_url: ''
       });
       showNotification('Rulemaking updated successfully!', 'success');
     } catch (err) {
@@ -755,6 +762,16 @@ const AdminDashboard = () => {
                         />
                       </div>
                       <div className="form-group">
+                        <label className="form-label">Federal Register URL</label>
+                        <input
+                          type="url"
+                          value={newRulemaking.federal_register_url}
+                          onChange={(e) => setNewRulemaking({...newRulemaking, federal_register_url: e.target.value})}
+                          className="form-input"
+                          placeholder="https://www.federalregister.gov/documents/..."
+                        />
+                      </div>
+                      <div className="form-group">
                         <label className="form-label">NCRC Comment Letter</label>
                         <textarea
                           value={newRulemaking.ncrc_comment_letter}
@@ -1074,6 +1091,16 @@ const AdminDashboard = () => {
                     rows={3}
                     className="form-input"
                     placeholder="Enter rulemaking description"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Federal Register URL</label>
+                  <input
+                    type="url"
+                    value={editRulemaking.federal_register_url}
+                    onChange={(e) => setEditRulemaking({...editRulemaking, federal_register_url: e.target.value})}
+                    className="form-input"
+                    placeholder="https://www.federalregister.gov/documents/..."
                   />
                 </div>
                 <div className="form-group">
