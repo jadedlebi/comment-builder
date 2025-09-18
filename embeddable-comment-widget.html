@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.3.2
-    Updated: 2025-01-27 18:45:00
-    Changes: Fixed infinite resize loop - added height change detection, max height cap, and resize attempt limits
+    CFPB Comment Widget - Version 2.3.3
+    Updated: 2025-01-27 19:00:00
+    Changes: Aggressive loop prevention - 50px min change, 3 max attempts, permanent disable after loops, debug logging
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127184500
+    Cache Buster: 20250127190000
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -1665,16 +1665,25 @@
             render();
         }
 
-        // Auto-resize iframe functionality with loop prevention
+        // Auto-resize iframe functionality with aggressive loop prevention
         let lastSentHeight = 0;
         let resizeCount = 0;
-        const MAX_RESIZE_ATTEMPTS = 5;
+        let resizeDisabled = false;
+        const MAX_RESIZE_ATTEMPTS = 3; // Reduced from 5 to 3
+        const MIN_HEIGHT_CHANGE = 50; // Increased from 10px to 50px
         
         function resizeIframe() {
             try {
+                // If resize is disabled due to too many attempts, don't continue
+                if (resizeDisabled) {
+                    console.log('Auto-resize disabled due to loop prevention');
+                    return;
+                }
+                
                 // Prevent excessive resize attempts
                 if (resizeCount > MAX_RESIZE_ATTEMPTS) {
-                    console.log('Max resize attempts reached, stopping auto-resize');
+                    console.log('Max resize attempts reached, disabling auto-resize');
+                    resizeDisabled = true;
                     return;
                 }
                 
@@ -1689,18 +1698,22 @@
                     html.offsetHeight
                 );
                 
+                console.log('Current height:', height, 'Last sent:', lastSentHeight, 'Diff:', Math.abs(height - lastSentHeight));
+                
                 // Only send if height changed significantly (prevent micro-adjustments)
                 const heightDiff = Math.abs(height - lastSentHeight);
-                if (heightDiff < 10) {
-                    return; // Skip if change is less than 10px
+                if (heightDiff < MIN_HEIGHT_CHANGE) {
+                    console.log('Height change too small, skipping resize');
+                    return; // Skip if change is less than 50px
                 }
                 
                 // Cap maximum height to prevent infinite expansion
-                const maxHeight = 2000;
+                const maxHeight = 1500; // Reduced from 2000 to 1500
                 const cappedHeight = Math.min(height, maxHeight);
                 
                 // Method 1: Send height to parent window (postMessage approach)
                 if (window.parent && window.parent !== window) {
+                    console.log('Sending resize message:', cappedHeight + 20);
                     window.parent.postMessage({
                         type: 'iframeResize',
                         height: cappedHeight + 20 // Add some padding
@@ -1709,20 +1722,22 @@
                     lastSentHeight = cappedHeight;
                     resizeCount++;
                     
-                    // Reset counter after successful resize
+                    // Reset counter after a longer delay
                     setTimeout(() => {
-                        resizeCount = Math.max(0, resizeCount - 1);
-                    }, 1000);
+                        if (resizeCount > 0) {
+                            resizeCount--;
+                        }
+                    }, 3000); // Increased from 1000ms to 3000ms
                 }
                 
-                // Method 2: Try to directly resize parent iframe (if accessible)
-                try {
-                    if (window.frameElement) {
-                        window.frameElement.style.height = (cappedHeight + 20) + 'px';
-                    }
-                } catch (crossOriginError) {
-                    // This will fail due to cross-origin restrictions, but that's expected
-                }
+                // Disable Method 2 entirely to prevent conflicts
+                // try {
+                //     if (window.frameElement) {
+                //         window.frameElement.style.height = (cappedHeight + 20) + 'px';
+                //     }
+                // } catch (crossOriginError) {
+                //     // This will fail due to cross-origin restrictions, but that's expected
+                // }
                 
             } catch (error) {
                 console.log('Iframe resize not available:', error);
@@ -1733,7 +1748,7 @@
         let resizeTimeout;
         function debouncedResize() {
             clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(resizeIframe, 500); // Increased delay to prevent loops
+            resizeTimeout = setTimeout(resizeIframe, 1000); // Increased to 1 second to prevent loops
         }
 
         // Simple auto-resize approach - tries multiple methods
