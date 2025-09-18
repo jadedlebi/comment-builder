@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.4.0 - FINAL
-    Updated: 2025-01-27 20:45:00
-    Changes: Height testing complete - optimal iframe height determined as 1700px, button validation fixed
+    CFPB Comment Widget - Version 2.5.0
+    Updated: 2025-01-27 21:00:00
+    Changes: Aggressive Elementor height adjustment - forces parent container resize with step-specific heights
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127204500
+    Cache Buster: 20250127210000
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -25,18 +25,37 @@
     <iframe src="https://yourusername.github.io/comment-widget/?rulemakingId=uuid-123-456" 
             width="100%" height="800px" frameborder="0"></iframe>
     
-    Step-Based Height Adjustment (Recommended):
-    ------------------------------------------
-    For step-specific height adjustment, add this script to your Elementor page:
+    ELEMENTOR DYNAMIC HEIGHT - AGGRESSIVE APPROACH:
+    -----------------------------------------------
+    Add this enhanced script that forces Elementor container resize:
     
     <script>
     window.addEventListener('message', function(e) {
         if (e.data.type === 'iframeResize') {
             const iframe = document.querySelector('iframe[src*="jadedlebi.github.io/comment-builder"]');
             if (iframe && e.source === iframe.contentWindow) {
-                iframe.style.height = e.data.height + 'px';
-                iframe.style.transition = 'height 0.3s ease-in-out';
-                console.log('Iframe resized to Step ' + e.data.step + ': ' + e.data.height + 'px');
+                const newHeight = e.data.height + 'px';
+                
+                // Force iframe height multiple ways
+                iframe.style.height = newHeight;
+                iframe.style.minHeight = newHeight;
+                iframe.style.maxHeight = newHeight;
+                iframe.setAttribute('height', e.data.height);
+                
+                // Force Elementor containers to resize
+                const widget = iframe.closest('.elementor-widget');
+                const widgetContainer = iframe.closest('.elementor-widget-container');
+                const column = iframe.closest('.elementor-column');
+                const section = iframe.closest('.elementor-section');
+                
+                [widget, widgetContainer, column, section].forEach(el => {
+                    if (el) {
+                        el.style.height = 'auto';
+                        el.style.minHeight = 'auto';
+                    }
+                });
+                
+                console.log('Forced resize to Step ' + e.data.step + ': ' + newHeight);
             }
         }
     });
@@ -45,7 +64,7 @@
     <iframe src="https://jadedlebi.github.io/comment-builder/?rulemakingId=uuid-123-456" 
             width="100%" style="border: none; height: 650px;" frameborder="0"></iframe>
     
-    Heights: Step 1=650px, Step 2=850px, Step 3=1700px, Step 4=1600px
+    Step Heights: 1=650px, 2=850px, 3=1700px, 4=1600px
 -->
 <html lang="en">
 <head>
@@ -93,6 +112,34 @@
             height: auto !important;
             overflow: visible !important;
         }
+        
+        /* Make widget more compact for iframe embedding */
+        .comment-widget {
+            padding: 15px; /* Reduced from 20px */
+        }
+        
+        .card {
+            padding: 24px; /* Reduced from 32px */
+            margin-bottom: 16px; /* Reduced from 24px */
+        }
+        
+        /* Dynamic height adjustment for iframe embedding */
+        body {
+            min-height: fit-content !important;
+            height: fit-content !important;
+        }
+        
+        html {
+            min-height: fit-content !important;
+            height: fit-content !important;
+        }
+        
+        /* Step-specific height constraints */
+        body[data-step="1"] { height: 650px !important; }
+        body[data-step="2"] { height: 850px !important; }
+        body[data-step="3"] { height: 1700px !important; }
+        body[data-step="4"] { height: 1600px !important; }
+        body[data-step="generating"] { height: 650px !important; }
 
         /* Cards */
         .card {
@@ -1689,7 +1736,10 @@
         
         function resizeToStepHeight(step) {
             try {
-                // Only run if we're in an iframe
+                // Set data attribute on body for CSS-based height adjustment
+                document.body.setAttribute('data-step', step);
+                
+                // Also try postMessage as fallback
                 if (window.parent && window.parent !== window) {
                     const targetHeight = STEP_HEIGHTS[step] || 1700; // Default to max height
                     
