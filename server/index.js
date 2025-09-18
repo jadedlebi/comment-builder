@@ -86,6 +86,11 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Allow GitHub Pages domains for widget hosting
+    if (origin.match(/^https:\/\/[a-zA-Z0-9-]+\.github\.io$/)) {
+      return callback(null, true);
+    }
+    
     // In production, be more restrictive
     if (process.env.NODE_ENV === 'production') {
       return callback(new Error('Not allowed by CORS'));
