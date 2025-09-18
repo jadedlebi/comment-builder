@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.3.1
-    Updated: 2025-01-27 18:30:00
-    Changes: Simplified auto-resize - built into widget, requires small script on parent page for cross-origin resize
+    CFPB Comment Widget - Version 2.3.2
+    Updated: 2025-01-27 18:45:00
+    Changes: Fixed infinite resize loop - added height change detection, max height cap, and resize attempt limits
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127183000
+    Cache Buster: 20250127184500
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -1573,15 +1573,23 @@
             `;
         }
 
+        let lastRenderedStep = -1;
+        
         function render() {
             const container = document.getElementById('comment-widget-container');
             
             if (isGenerating) {
                 container.innerHTML = showLoading();
-                // Trigger resize after content change
-                setTimeout(debouncedResize, 100);
+                // Only resize if we weren't generating before
+                if (lastRenderedStep !== 'generating') {
+                    setTimeout(debouncedResize, 500);
+                    lastRenderedStep = 'generating';
+                }
                 return;
             }
+
+            // Only resize if step actually changed
+            const stepChanged = lastRenderedStep !== currentStep;
 
             switch (currentStep) {
                 case 0:
@@ -1605,8 +1613,11 @@
                     container.innerHTML = renderStep0();
             }
             
-            // Trigger resize after content change
-            setTimeout(debouncedResize, 100);
+            // Only trigger resize if step actually changed
+            if (stepChanged) {
+                setTimeout(debouncedResize, 500);
+                lastRenderedStep = currentStep;
+            }
         }
 
         // Event handlers
@@ -1654,9 +1665,19 @@
             render();
         }
 
-        // Auto-resize iframe functionality - works automatically in any iframe
+        // Auto-resize iframe functionality with loop prevention
+        let lastSentHeight = 0;
+        let resizeCount = 0;
+        const MAX_RESIZE_ATTEMPTS = 5;
+        
         function resizeIframe() {
             try {
+                // Prevent excessive resize attempts
+                if (resizeCount > MAX_RESIZE_ATTEMPTS) {
+                    console.log('Max resize attempts reached, stopping auto-resize');
+                    return;
+                }
+                
                 // Get the actual content height
                 const body = document.body;
                 const html = document.documentElement;
@@ -1668,18 +1689,36 @@
                     html.offsetHeight
                 );
                 
+                // Only send if height changed significantly (prevent micro-adjustments)
+                const heightDiff = Math.abs(height - lastSentHeight);
+                if (heightDiff < 10) {
+                    return; // Skip if change is less than 10px
+                }
+                
+                // Cap maximum height to prevent infinite expansion
+                const maxHeight = 2000;
+                const cappedHeight = Math.min(height, maxHeight);
+                
                 // Method 1: Send height to parent window (postMessage approach)
                 if (window.parent && window.parent !== window) {
                     window.parent.postMessage({
                         type: 'iframeResize',
-                        height: height + 20 // Add some padding
+                        height: cappedHeight + 20 // Add some padding
                     }, '*');
+                    
+                    lastSentHeight = cappedHeight;
+                    resizeCount++;
+                    
+                    // Reset counter after successful resize
+                    setTimeout(() => {
+                        resizeCount = Math.max(0, resizeCount - 1);
+                    }, 1000);
                 }
                 
                 // Method 2: Try to directly resize parent iframe (if accessible)
                 try {
                     if (window.frameElement) {
-                        window.frameElement.style.height = (height + 20) + 'px';
+                        window.frameElement.style.height = (cappedHeight + 20) + 'px';
                     }
                 } catch (crossOriginError) {
                     // This will fail due to cross-origin restrictions, but that's expected
@@ -1694,7 +1733,7 @@
         let resizeTimeout;
         function debouncedResize() {
             clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(resizeIframe, 100);
+            resizeTimeout = setTimeout(resizeIframe, 500); // Increased delay to prevent loops
         }
 
         // Simple auto-resize approach - tries multiple methods
@@ -1743,11 +1782,11 @@
                 }, AUTO_REFRESH_MS);
             }
             
-            // Set up resize observers for postMessage fallback
-            if (window.ResizeObserver) {
-                const resizeObserver = new ResizeObserver(debouncedResize);
-                resizeObserver.observe(document.body);
-            }
+            // Disable ResizeObserver to prevent infinite loops - only trigger on specific events
+            // if (window.ResizeObserver) {
+            //     const resizeObserver = new ResizeObserver(debouncedResize);
+            //     resizeObserver.observe(document.body);
+            // }
             
             // Fallback: resize on window resize
             window.addEventListener('resize', debouncedResize);
