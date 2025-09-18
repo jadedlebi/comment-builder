@@ -981,8 +981,8 @@
                     submission_status: 'submitted'
                 });
 
-                // Redirect to success page or show success message
-                window.open(`https://your-domain.com/success/${submissionId}`, '_blank');
+                // Comment saved successfully - no redirect needed for embedded widget
+                console.log('Comment saved successfully');
             } catch (error) {
                 alert(`Failed to save comment: ${error.message}`);
             }
@@ -998,7 +998,10 @@
 
             // Save comment first
             saveFinalComment().then(() => {
-                const federalRegisterUrl = `https://www.regulations.gov/commenton/${CONFIG.selectedRulemaking.docket_id}-0001`;
+                // Use the federal_register_url from the rulemaking data if available, 
+                // otherwise fall back to the constructed regulations.gov URL
+                const federalRegisterUrl = CONFIG.selectedRulemaking.federal_register_url || 
+                    `https://www.regulations.gov/commenton/${CONFIG.selectedRulemaking.docket_id}-0001`;
                 window.open(federalRegisterUrl, '_blank');
             });
         }
