@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-    CFPB Comment Widget - Version 2.3.6
-    Updated: 2025-01-27 19:45:00
-    Changes: Fixed button validation bug - reads DOM values instead of formData, determined optimal height is 1700px
+    CFPB Comment Widget - Version 2.3.7
+    Updated: 2025-01-27 20:00:00
+    Changes: CRITICAL FIX - Added missing name attributes to form fields so button validation works properly
     Required Fields: Full Name *, Email *, City *, State *, ZIP Code *, Why does this issue matter to you? *
-    Cache Buster: 20250127194500
+    Cache Buster: 20250127200000
     
     GITHUB PAGES TEMPLATE USAGE:
     ============================
@@ -1366,6 +1366,7 @@
                                 <label class="form-label">Full Name *</label>
                                 <input
                                     type="text"
+                                    name="user_name"
                                     value="${formData.user_name}"
                                     oninput="handleInputChange('user_name', this.value); checkFormValidity();"
                                     onchange="handleInputChange('user_name', this.value); checkFormValidity();"
@@ -1377,6 +1378,7 @@
                                 <label class="form-label">Email *</label>
                                 <input
                                     type="email"
+                                    name="user_email"
                                     value="${formData.user_email}"
                                     oninput="handleInputChange('user_email', this.value); checkFormValidity();"
                                     onchange="handleInputChange('user_email', this.value); checkFormValidity();"
@@ -1391,6 +1393,7 @@
                                 <label class="form-label">City *</label>
                                 <input
                                     type="text"
+                                    name="user_city"
                                     value="${formData.user_city}"
                                     oninput="handleInputChange('user_city', this.value); checkFormValidity();"
                                     onchange="handleInputChange('user_city', this.value); checkFormValidity();"
@@ -1402,6 +1405,7 @@
                                 <label class="form-label">State *</label>
                                 <input
                                     type="text"
+                                    name="user_state"
                                     value="${formData.user_state}"
                                     oninput="handleInputChange('user_state', this.value); checkFormValidity();"
                                     onchange="handleInputChange('user_state', this.value); checkFormValidity();"
@@ -1413,6 +1417,7 @@
                                 <label class="form-label">ZIP Code *</label>
                                 <input
                                     type="text"
+                                    name="user_zip"
                                     value="${formData.user_zip}"
                                     oninput="handleInputChange('user_zip', this.value); checkFormValidity();"
                                     onchange="handleInputChange('user_zip', this.value); checkFormValidity();"
@@ -1425,6 +1430,7 @@
                         <div class="form-group">
                             <label class="form-label">Why does this issue matter to you? *</label>
                             <textarea
+                                name="why_it_matters"
                                 value="${formData.why_it_matters}"
                                 oninput="handleInputChange('why_it_matters', this.value); checkFormValidity();"
                                 onchange="handleInputChange('why_it_matters', this.value); checkFormValidity();"
