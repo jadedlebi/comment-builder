@@ -700,20 +700,21 @@
                 if (CONFIG.specificRulemakingId) {
                     try {
                         const response = await makeApiCall(`/rulemakings/${CONFIG.specificRulemakingId}`);
-                        CONFIG.selectedRulemaking = response.rulemaking;
                         CONFIG.rulemakings = [response.rulemaking]; // Single rulemaking array
                         
                         // Check if the specific rulemaking is expired
-                        const deadline = new Date(CONFIG.selectedRulemaking.comment_deadline.value || CONFIG.selectedRulemaking.comment_deadline);
+                        const deadline = new Date(response.rulemaking.comment_deadline.value || response.rulemaking.comment_deadline);
                         const now = new Date();
                         
-                        if (deadline <= now) {
-                            // Rulemaking is expired - show expired message
-                            currentStep = 2; // Go to details page which will show expired state
+                        // Filter out if expired
+                        if (deadline > now) {
+                            CONFIG.rulemakings = [response.rulemaking];
                         } else {
-                            // Rulemaking is active - show details page with button to start
-                            currentStep = 1; // Go to selection step (which shows rulemaking details)
+                            CONFIG.rulemakings = []; // Empty if expired
                         }
+                        
+                        // Always start at selection screen, even with URL parameter
+                        currentStep = CONFIG.rulemakings.length > 0 ? 1 : 0;
                         
                         isLoading = false;
                         render();
