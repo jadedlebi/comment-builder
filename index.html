@@ -126,20 +126,29 @@
     </div>
 
     <script>
-        // Load the widget content
-        fetch('embeddable-comment-widget.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('widget-container').innerHTML = html;
-            })
-            .catch(error => {
-                document.getElementById('widget-container').innerHTML = `
-                    <div style="padding: 40px; text-align: center; color: #dc2626;">
-                        <h3>⚠️ Widget Not Found</h3>
-                        <p>Make sure the embeddable-comment-widget.html file is in the same directory.</p>
-                    </div>
-                `;
-            });
+        // Check if we have a rulemakingId parameter - if so, redirect to widget directly
+        const urlParams = new URLSearchParams(window.location.search);
+        const rulemakingId = urlParams.get('rulemakingId');
+        
+        if (rulemakingId) {
+            // Redirect to the widget file with the parameter
+            window.location.href = `embeddable-comment-widget.html?rulemakingId=${rulemakingId}`;
+        } else {
+            // Load the widget content for general use
+            fetch('embeddable-comment-widget.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('widget-container').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('widget-container').innerHTML = `
+                        <div style="padding: 40px; text-align: center; color: #dc2626;">
+                            <h3>⚠️ Widget Not Found</h3>
+                            <p>Make sure the embeddable-comment-widget.html file is in the same directory.</p>
+                        </div>
+                    `;
+                });
+        }
     </script>
 
     <style>
